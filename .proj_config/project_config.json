@@ -1,8 +1,9 @@
 {
 	"AssociatedProject": [
-		"gtest"
-	],
-	"ChooseCompiler": [
+		"gtest",
+		"basic",
+		"data_structure"
+	],"ChooseCompiler": [
 		{
 			"CompilerName": "g++",
 			"DebugOption": "-O0 -Wall -g -ggdb -std=c++11",
@@ -28,13 +29,13 @@
 	},
 	"LibraryListing": {
 		"debug": [
-			
-		],
-		"release": [
+			"pthread",
+			"basicd"
+		],"release": [
 			
 		]
 	},
-	"MainFileName": "",
+	"MainFileName": "echo_client_test.cc",
 	"Name": "system",
 	"Path": "/home/ruanjian/workspace/project_v/system",
 	"ProgramRunArgs": "",
