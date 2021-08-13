@@ -18,7 +18,7 @@ target_compile_options(system_compiler_flags INTERFACE
 
 # 设置生成文件输出路径
 set(EXECUTABLE_OUTPUT_PATH, ./output/debug/bin)
-add_executable(system ./main/echo_client_test.cc)
+add_executable(system ./main/echo_server_test.cc)
 
 target_include_directories(system PUBLIC ./inc/)
 target_include_directories(system PRIVATE ./extern_inc/)

@@ -35,8 +35,8 @@ int main(void)
     ByteBuffer buff;
     string str;
 
-    std::size_t min_thread = 30;
-    std::size_t max_thread = 55;
+    std::size_t min_thread = 2;
+    std::size_t max_thread = 2;
     ThreadPoolConfig config = {min_thread, max_thread, 30, SHUTDOWN_ALL_THREAD_IMMEDIATELY};
     pool.init();
     pool.set_threadpool_config(config);
@@ -166,6 +166,6 @@ void *print_threadpool_info(void *arg)
 void *print_threadpool_exit(void *arg)
 {
     print_exit = true;
-
+    LOG_GLOBAL_DEBUG("Exit print thread pool");
     return nullptr;
 }
