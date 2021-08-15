@@ -166,9 +166,10 @@ enum ThreadPoolExitAction {
 };
 
 struct ThreadPoolConfig {
-    std::size_t min_thread_num;
-    std::size_t max_thread_num;
-    int idle_thread_life;
+    std::size_t min_thread_num;             // 最小线程数
+    std::size_t max_thread_num;             // 最大线程数
+    std::size_t max_waiting_task;           // 缓存中保存的最大任务数
+    int idle_thread_life;                   // 空闲线程的存在
     ThreadPoolExitAction threadpool_exit_action; // 默认时强制关闭所有线程
 };
 

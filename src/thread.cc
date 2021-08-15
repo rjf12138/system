@@ -199,6 +199,7 @@ ThreadPool::ThreadPool(void)
     thread_pool_config_.min_thread_num = 5;
     thread_pool_config_.max_thread_num = 10;
     thread_pool_config_.idle_thread_life = 30;
+    thread_pool_config_.max_waiting_task = 500;
     thread_pool_config_.threadpool_exit_action = SHUTDOWN_ALL_THREAD_IMMEDIATELY;
     this->manage_work_threads(true);
     state_ = WorkThread_WAITING;
@@ -241,6 +242,12 @@ ThreadPool::add_task(Task &task)
 {
     // 关闭线程池时，停止任务的添加
     if (exit_) {
+        LOG_INFO("Thread pool waiting for stop, can't add task");
+        return 0;
+    }
+
+    if (tasks_.size() >= thread_pool_config_.max_waiting_task) {
+        LOG_INFO("The number of tasks in the cache has reached the maximum.[size: %d, max: %d]", tasks_.size(), thread_pool_config_.max_waiting_task);
         return 0;
     }
     task_mutex_.lock();
@@ -255,8 +262,15 @@ ThreadPool::add_priority_task(Task &task)
 {
     // 关闭线程池时，停止任务的添加
     if (exit_) {
+        LOG_INFO("Thread pool waiting for stop, can't add task");
         return 0;
     }
+
+    if (priority_tasks_.size() >= thread_pool_config_.max_waiting_task) {
+        LOG_INFO("The number of priority_tasks in the cache has reached the maximum.[size: %d, max: %d]", priority_tasks_.size(), thread_pool_config_.max_waiting_task);
+        return 0;
+    }
+
     task_mutex_.lock();
     int ret = priority_tasks_.push(task);
     task_mutex_.unlock();
