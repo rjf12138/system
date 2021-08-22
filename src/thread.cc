@@ -490,29 +490,45 @@ std::string
 ThreadPool::info(void)
 {
     std::ostringstream ostr;
-    std::string action;
-
-    if (thread_pool_config_.threadpool_exit_action == WAIT_FOR_ALL_TASKS_FINISHED) {
-        action = "WAIT_FOR_ALL_TASKS_FINISHED";
-    } else if (thread_pool_config_.threadpool_exit_action == SHUTDOWN_ALL_THREAD_IMMEDIATELY) {
-        action = "SHUTDOWN_ALL_THREAD_IMMEDIATELY";
-    } else {
-        action = "UNKNOWN_ACTION";
-    }
+    ThreadPoolRunningInfo info = this->get_running_info();
 
     ostr << "==================thread pool config==========================" << std::endl;
     ostr << "max-threads: " << thread_pool_config_.max_thread_num << std::endl;
     ostr << "min-threads: " << thread_pool_config_.min_thread_num << std::endl;
+    ostr << "max-waiting-tasks: " << thread_pool_config_.max_waiting_task << std::endl;
     ostr << "idle-thread-life: " << thread_pool_config_.idle_thread_life << std::endl;
-    ostr << "action when threadpool exit: " << action << std::endl;
+    ostr << "action when threadpool exit: " << info.exit_action << std::endl;
     ostr << "==================thread pool realtime data===================" << std::endl;
     ostr << "running threads: " << runing_threads_.size() << std::endl;
     ostr << "idle threads: " << idle_threads_.size() << std::endl;
-    ostr << "tasks: " << tasks_.size() << std::endl;
-    ostr << "priority tasks: " << priority_tasks_.size() << std::endl;
+    ostr << "waiting tasks: " << tasks_.size() << std::endl;
+    ostr << "waiting prio tasks: " << priority_tasks_.size() << std::endl;
+    ostr << "thread pool state: " << info.curr_status << std::endl;
     ostr << "===========================end================================" << std::endl;
 
     return ostr.str();
+}
+
+ThreadPoolRunningInfo 
+ThreadPool::get_running_info(void)
+{
+    ThreadPoolRunningInfo running_info;
+    running_info.config = thread_pool_config_;
+    running_info.curr_status = (state_ == false ? "running":"stopping"); // true 表示退出
+
+    if (thread_pool_config_.threadpool_exit_action == WAIT_FOR_ALL_TASKS_FINISHED) {
+        running_info.exit_action =  "WAIT_FOR_ALL_TASKS_FINISHED";
+    } else if (thread_pool_config_.threadpool_exit_action == SHUTDOWN_ALL_THREAD_IMMEDIATELY) {
+        running_info.exit_action =  "SHUTDOWN_ALL_THREAD_IMMEDIATELY";
+    } else {
+        running_info.exit_action =  "UNKNOWN_ACTION";
+    }
+    running_info.running_threads_num = runing_threads_.size();
+    running_info.idle_threads_num = idle_threads_.size();
+    running_info.waiting_tasks = tasks_.size();
+    running_info.waiting_prio_tasks = priority_tasks_.size();
+
+    return running_info;
 }
 
 }
