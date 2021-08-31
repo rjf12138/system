@@ -234,7 +234,7 @@ int SocketTCP::accept(int &clisock, struct sockaddr *cliaddr, socklen_t *addrlen
 
     return 0;
 }
-
+// 存在问题需要修改
 int 
 SocketTCP::recv(ByteBuffer &buff, int buff_size, int flags)
 {

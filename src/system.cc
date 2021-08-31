@@ -37,11 +37,19 @@ void set_systemcall_message_output_callback(InfoLevel level, msg_to_stream_callb
 }
 
 
-int os_sleep(int millisecond)
+int os_sleep(uint64_t millisecond)
 {
-#ifdef __RJF_LINUX__
-    return usleep(millisecond * 1000);
-#endif
+    struct timespec req, rem;
+    req.tv_sec = millisecond / 1000;
+    req.tv_nsec = (millisecond % 1000) * 1000 * 1000;
+    while (::nanosleep(&req, &rem) < 0){
+        if (errno == EINTR) {
+            ::nanosleep(&rem, NULL);
+        } else {
+            return -1;
+        }
+    }
+    return 0;
 }
 
 
