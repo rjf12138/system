@@ -39,6 +39,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
+#include <sys/time.h>
 #include <setjmp.h>
 
 #elif defined(__RJF_WINDOWS__)

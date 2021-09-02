@@ -1,6 +1,7 @@
 #ifndef __HEAP_H__
 #define __HEAP_H__
 #include <vector>
+#include <stdexcept>
 
 namespace ds {
 // 用数组实现，不要用链表了
@@ -15,11 +16,12 @@ public:
     int size(void) const {return size_;}
     bool empty(void) const {return this->size() == 0 ? true : false;}
 
+    T& operator[](int pos);
 private:
-    void swap( T &p, T &q) {
+    void swap(T &p, T &q) {
         auto tmp = p;
         p = q;
-        q= tmp;
+        q = tmp;
     }
 private:
     std::vector<T> heap_;
@@ -97,6 +99,16 @@ int MinHeap<T>::pop(T &data)
         }
     }
     return 1;
+}
+
+template <class T>
+T& MinHeap<T>::operator[](int pos)
+{
+    if (pos < 0 || pos >= size_) {
+        throw std::runtime_error("out of range");
+    }
+
+    return heap_[pos + 1];
 }
 
 }
