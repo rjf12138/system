@@ -52,7 +52,7 @@ int main(void)
         }
         if (exit_state == true)
             break;
-        os_sleep(3000);
+        Time::sleep(3000);
     }
     pool.wait_thread();
 
@@ -110,7 +110,7 @@ void *echo_handler(void *arg)
             }
         }
 
-        // os_sleep(100);
+        // Time::sleep(100);
     }
 end:
     LOG_GLOBAL_DEBUG("Client: %s:%d exit successed!", cli_ip.c_str(), cli_port);

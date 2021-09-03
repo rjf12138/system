@@ -214,7 +214,7 @@ int
 ThreadPool::run_handler(void)
 {
     while (!exit_) {
-        os_sleep(100);
+        Time::sleep(10);
         this->manage_work_threads(false);
     }
 
@@ -463,7 +463,7 @@ ThreadPool::shutdown_all_threads(void)
         // 等待任务完成
         while (runing_threads_.size() > 0) {
             LOG_INFO("Wait for task finish, Working threads num: %d", runing_threads_.size());
-            os_sleep(1000);
+            Time::sleep(1000);
         }
     } else {
         // 停止所有正在处理任务的线程
@@ -475,7 +475,7 @@ ThreadPool::shutdown_all_threads(void)
 
     while (runing_threads_.size() > 0) {
         LOG_INFO("shutdown threads waiting: %d threads still running", runing_threads_.size());
-        os_sleep(500);
+        Time::sleep(500);
     }
 
     for (auto iter = idle_threads_.begin(); iter != idle_threads_.end(); ) {

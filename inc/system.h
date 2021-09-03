@@ -22,7 +22,7 @@ extern basic::msg_to_stream_callback g_msg_to_stream_fatal;
 extern void set_systemcall_message_output_callback(basic::InfoLevel level, basic::msg_to_stream_callback func);
 
 // 休眠时间,单位：毫秒 
-int os_sleep(int millisecond);
+// int os_sleep(int millisecond);
 
 /*
 * 所有的类成员函数成功了返回0， 失败返回非0值
@@ -397,7 +397,7 @@ private:
 // 说明： 定时器最小能设置等待间隔时间是 5 ms
 enum TimerEventAttr {
     TimerEventAttr_Exit, // 定时器到期后删除当前事件
-    TimerEventAttr_Readd，// 定时器到期后重新添加
+    TimerEventAttr_ReAdd, // 定时器到期后重新添加
 };
 
 typedef void* (*TimeEvent_callback_t)(void*);
@@ -407,11 +407,25 @@ typedef struct TimerEvent {
     uint32_t wait_time; // 定时器等待的间隔时间。单位: ms, 必须大于 0
     void* TimeEvent_arg; // 回调函数的参数
     TimeEvent_callback_t TimeEvent_callback; // 定时器到期时的回调函数
+    TimerEventAttr attr;
+
+    bool operator>(const TimerEvent &rhs) {
+        return this->expire_time > rhs.expire_time;
+    }
+
+    bool operator<(const TimerEvent &rhs) {
+        return this->expire_time < rhs.expire_time;
+    }
+
+    bool operator==(const TimerEvent &rhs) {
+        return this->expire_time == rhs.expire_time;
+    }
 
     TimerEvent(void)
     :id(0),
     expire_time(0),
     wait_time(0),
+    attr(TimerEventAttr_Exit),
     TimeEvent_arg(nullptr),
     TimeEvent_callback(nullptr) {}
 

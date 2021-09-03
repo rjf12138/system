@@ -63,7 +63,7 @@ int main(void)
     while (!server_exit) {
         int ret = echo_server.accept(cli_socket, (sockaddr*)&cliaddr, &size);
         if (ret != 0) {
-            os_sleep(3000);
+            Time::sleep(3000);
             break;
         }
         LOG_GLOBAL_DEBUG("accept socket!");
@@ -79,7 +79,7 @@ int main(void)
     }
 
     while (pool.get_state() != WorkThread_EXIT) {
-        os_sleep(500);
+        Time::sleep(500);
     }
 
     return 0;
@@ -128,7 +128,7 @@ void *echo_handler(void *arg)
         }
     }
     // 给2s时间把数据发送到客户端在关闭
-    os_sleep(2000);
+    Time::sleep(2000);
     LOG_GLOBAL_DEBUG("Client: %s:%d exit!", cli_ip.c_str(), cli_port);
     delete cli_info;
     cli_info = nullptr;
@@ -157,7 +157,7 @@ void *print_threadpool_info(void *arg)
     ThreadPool *threadpool = (ThreadPool*)arg;
     while (!print_exit) {
         LOG_GLOBAL_INFO("\n%s\n", threadpool->info().c_str());
-        os_sleep(1000);
+        Time::sleep(1000);
     }
 
     return nullptr;

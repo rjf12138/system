@@ -1,12 +1,11 @@
-#include "system_utils.h"
-#include "msg_record.h"
+#include "system.h"
 
-using namespace my_utils;
-using namespace system_utils;
+using namespace util;
+using namespace basic;
 
 int main(void)
 {
-    Stream stream;
+    File stream;
     stream.open("./file");
 
     stream.write_file_fmt("Hello, World!\n");

@@ -22,12 +22,16 @@ Timer::run_handler(void)
         if (timer_heap_.size() > 0 && timer_heap_[0].expire_time > time_.now()) {
             TimerEvent_t event;
             mutex_.lock();
-            if (timer_heap_.pop(event) > 0) {
+            int ret = timer_heap_.pop(event);
+            mutex_.unlock();
+            if (ret > 0) {
                 if (event.TimeEvent_callback != nullptr) {
                     event.TimeEvent_callback(event.TimeEvent_arg);
+                    if (event.attr == TimerEventAttr_ReAdd) {
+                        this->add(event);
+                    }
                 }
             }
-            mutex_.unlock();
         }
         Time::sleep(loop_gap_);
     }
@@ -38,6 +42,7 @@ int
 Timer::stop_handler(void)
 {
     exit_ = true;
+    return 0;
 }
 
 // 添加定时器,错误返回-1， 成功返回一个定时器id
@@ -60,7 +65,15 @@ Timer::add(TimerEvent_t &event)
 int 
 Timer::cancel(int id)
 {
-    for (int i = 0; i < timer_id_)
+    int ret = 0;
+    for (int i = 0; i < timer_id_; ++i) {
+        if (timer_heap_[i].id == id) {
+            mutex_.lock();
+            ret = timer_heap_.remove(i);
+            mutex_.unlock();
+        }
+    }
+    return ret;
 }
 
 }

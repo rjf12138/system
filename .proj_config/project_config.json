@@ -35,7 +35,7 @@
 			
 		]
 	},
-	"MainFileName": "echo_server_test.cc",
+	"MainFileName": "echo_client_test.cc",
 	"Name": "system",
 	"Path": "/home/ruanjian/workspace/project_v/system",
 	"ProgramRunArgs": "",

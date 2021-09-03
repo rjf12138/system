@@ -4,15 +4,19 @@
 #include <stdexcept>
 
 namespace ds {
-// 用数组实现，不要用链表了
 template <class T>
 class MinHeap {
 public:
     MinHeap(void);
     ~MinHeap(void);
 
+    // 往最小堆添加元素
     int push(const T &data);
+    // 从最小堆删除元素
     int pop(T &data);
+    // 强制从堆中删除一个元素
+    int remove(int pos);
+    // 堆中元素个数
     int size(void) const {return size_;}
     bool empty(void) const {return this->size() == 0 ? true : false;}
 
@@ -98,6 +102,29 @@ int MinHeap<T>::pop(T &data)
             break;
         }
     }
+    return 1;
+}
+
+template <class T>
+int MinHeap<T>::remove(int pos)
+{
+    ++pos; // heap 中坐标是从1开始，外部坐标从0开始
+    if (pos < 1 || pos > size_) {
+        return 0;
+    }
+
+    std::size_t min_pos = pos;
+    while (true) {
+        std::size_t parent_pos = min_pos / 2;
+        if (parent_pos == 0) {
+            break;
+        }
+        swap(heap_[min_pos], heap_[parent_pos]);
+        min_pos = parent_pos;
+    }
+
+    T t;
+    this->pop(t);
     return 1;
 }
 
