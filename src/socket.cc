@@ -236,38 +236,46 @@ int SocketTCP::accept(int &clisock, struct sockaddr *cliaddr, socklen_t *addrlen
 }
 // 存在问题需要修改
 int 
-SocketTCP::recv(ByteBuffer &buff, int buff_size, int flags)
+SocketTCP::recv(ByteBuffer &buff, int flags)
 {
     if (is_enable_ == false) {
         LOG_WARN("Please create socket first.");
         return -1;
     }
 
-    buff.resize(buff_size+1);
-    ssize_t ret = ::recv(socket_, buff.get_write_buffer_ptr(), buff.get_cont_write_size(), flags);
-    if (ret < 0) {
-        LOG_ERROR("recv: %s", strerror(errno));
-        return -1;
-    }
-    buff.update_write_pos(ret);
+    ssize_t recv_size = 0, ret = 0;
+    buff.resize(1024);
+    do {
+        ssize_t ret = ::recv(socket_, buff.get_write_buffer_ptr(), buff.get_cont_write_size(), flags);
+        if (ret < 0) {
+            if (errno != EINTR) {
+                LOG_ERROR("recv: %s", strerror(errno));
+                return -1;
+            }
+        }
+        recv_size += ret;
+        buff.update_write_pos(ret);
+    } while (ret <= 0);
    
     return ret;
 }
 
 int 
-SocketTCP::send(ByteBuffer &buff, int buff_size, int flags)
+SocketTCP::send(ByteBuffer &buff, int flags)
 {
     if (is_enable_ == false) {
         LOG_WARN("Please create socket first.");
         return -1;
     }
 
-    size_t remain_size = buff_size;
+    size_t remain_size = buff.data_size();
     do {
         int ret = ::send(socket_, buff.get_read_buffer_ptr(), buff.get_cont_read_size(), flags);
         if (ret == -1) {
-            LOG_ERROR("send: %s", strerror(errno));
-            return -1;
+            
+                LOG_ERROR("send: %s", strerror(errno));
+                return -1;
+            }
         }
         buff.update_read_pos(ret);
 
@@ -277,7 +285,7 @@ SocketTCP::send(ByteBuffer &buff, int buff_size, int flags)
         }
     }  while (remain_size > 0);
    
-    return buff_size - remain_size;
+    return buff.data_size() - remain_size;
 }
 
 }
