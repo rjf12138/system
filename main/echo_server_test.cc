@@ -35,8 +35,8 @@ int main(void)
     ByteBuffer buff;
     string str;
 
-    std::size_t min_thread = 2;
-    std::size_t max_thread = 2;
+    std::size_t min_thread = 100;
+    std::size_t max_thread = 120;
     ThreadPoolConfig config = {min_thread, max_thread, 30, SHUTDOWN_ALL_THREAD_IMMEDIATELY};
     pool.init();
     pool.set_threadpool_config(config);
@@ -111,13 +111,13 @@ void *echo_handler(void *arg)
 
     ByteBuffer buff;
     while (cli_info->get_socket_state()) {
-        int ret = cli_info->recv(buff, 2048, 0);
+        int ret = cli_info->recv(buff, 0);
         if (ret > 0) {
             string str;
             buff.read_string(str);
             LOG_GLOBAL_DEBUG("Client (%s:%d): %s", cli_ip.c_str(), cli_port, str.c_str());
             buff.write_string(str);
-            cli_info->send(buff, str.size(), 0);
+            cli_info->send(buff, 0);
             
             if (str == "quit") {
                 break;

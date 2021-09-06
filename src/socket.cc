@@ -243,21 +243,25 @@ SocketTCP::recv(ByteBuffer &buff, int flags)
         return -1;
     }
 
-    ssize_t recv_size = 0, ret = 0;
-    buff.resize(1024);
+    const int buffer_size = 2048;
+    char buffer[buffer_size] = {0};
+    ssize_t ret = 0;
     do {
-        ssize_t ret = ::recv(socket_, buff.get_write_buffer_ptr(), buff.get_cont_write_size(), flags);
+        ret = ::recv(socket_, buffer, 2048, flags);
         if (ret < 0) {
             if (errno != EINTR) {
                 LOG_ERROR("recv: %s", strerror(errno));
-                return -1;
+                break;
             }
+            continue;
+        } 
+        buff.write_bytes(buffer, ret);
+        if (ret == buffer_size) {
+            continue;
         }
-        recv_size += ret;
-        buff.update_write_pos(ret);
-    } while (ret <= 0);
+    } while (false);
    
-    return ret;
+    return buff.data_size();
 }
 
 int 
@@ -268,24 +272,21 @@ SocketTCP::send(ByteBuffer &buff, int flags)
         return -1;
     }
 
-    size_t remain_size = buff.data_size();
+    ssize_t send_size = 0;
     do {
         int ret = ::send(socket_, buff.get_read_buffer_ptr(), buff.get_cont_read_size(), flags);
-        if (ret == -1) {
-            
+        if (ret < 0) {
+            if (errno != EINTR) {
                 LOG_ERROR("send: %s", strerror(errno));
-                return -1;
+                break;
             }
+            continue;
         }
+        send_size += ret;
         buff.update_read_pos(ret);
-
-        remain_size -= ret;
-        if (ret == 0 || buff.idle_size() == 0) {
-            break;
-        }
-    }  while (remain_size > 0);
+    }  while (buff.data_size() > 0);
    
-    return buff.data_size() - remain_size;
+    return send_size;
 }
 
 }

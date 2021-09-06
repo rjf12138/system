@@ -24,8 +24,8 @@ int main(void)
     ByteBuffer buff;
     string str;
 
-    std::size_t min_thread = 450;
-    std::size_t max_thread = 455;
+    std::size_t min_thread = 45;
+    std::size_t max_thread = 45;
     ThreadPoolConfig config = {min_thread, max_thread, 30, SHUTDOWN_ALL_THREAD_IMMEDIATELY};
     pool.init();
     pool.set_threadpool_config(config);
@@ -95,8 +95,8 @@ void *echo_handler(void *arg)
             buff.write_string(data);
         }
 
-        int ret = cli_info->send(buff, data.size(), 0);
-        cli_info->recv(buff, ret, 0);
+        cli_info->send(buff, 0);
+        cli_info->recv(buff, 0);
         string recv_data;
         buff.read_string(recv_data);
         if (recv_data != data && recv_data != "quit") {
@@ -110,7 +110,7 @@ void *echo_handler(void *arg)
             }
         }
 
-        // Time::sleep(100);
+         Time::sleep(100);
     }
 end:
     LOG_GLOBAL_DEBUG("Client: %s:%d exit successed!", cli_ip.c_str(), cli_port);
