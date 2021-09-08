@@ -1,6 +1,6 @@
 #include "system.h"
 
-namespace util {
+namespace os {
 
 File::File(void) 
 : file_open_flag_(false)

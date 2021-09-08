@@ -4,7 +4,7 @@
 #endif
 
 // 放不是实现单一功能的函数
-namespace util {
+namespace os {
 
 // 设置system_utils内所有函数/类成员的消息回调
 msg_to_stream_callback g_msg_to_stream_trace = output_to_stdout;
@@ -34,23 +34,6 @@ void set_systemcall_message_output_callback(InfoLevel level, msg_to_stream_callb
             output_to_stderr("MsgRecord::set_stream_func: Unknown option!");
         } break;
     }
-}
-
-
-int os_sleep(uint64_t millisecond)
-{
-    struct timespec req, rem;
-    req.tv_sec = millisecond / 1000;
-    req.tv_nsec = (millisecond % 1000) * 1000 * 1000;
-    while (::nanosleep(&req, &rem) < 0){
-        if (errno == EINTR) {
-            req = rem;
-            continue;
-        } else {
-            return -1;
-        }
-    }
-    return 0;
 }
 
 }

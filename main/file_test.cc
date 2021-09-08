@@ -1,6 +1,6 @@
 #include "system.h"
 
-using namespace util;
+using namespace os;
 using namespace basic;
 
 int main(void)

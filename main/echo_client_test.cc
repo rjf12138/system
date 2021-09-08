@@ -1,7 +1,7 @@
 #include "system.h"
 
 using namespace basic;
-using namespace util;
+using namespace os;
 using namespace std;
 
 void *echo_handler(void *arg);

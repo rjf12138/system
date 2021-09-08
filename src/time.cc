@@ -1,6 +1,6 @@
 #include "system.h"
 
-namespace util {
+namespace os {
 Time::Time(void)
 {
     now();

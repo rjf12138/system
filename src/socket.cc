@@ -1,6 +1,6 @@
 #include "system.h"
 
-namespace util {
+namespace os {
 SocketTCP::SocketTCP(void)
 : is_enable_(false)
 {
