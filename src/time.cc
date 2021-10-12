@@ -11,21 +11,27 @@ Time::~Time(void)
 
 }
 
-uint64_t 
+void 
+Time::set_time(mtime_t tm)
+{
+    time_ = tm;
+}
+
+mtime_t 
 Time::now(void)
 {
     // 获取当前时间：毫秒级
     struct timeval struct_time_mill;
     gettimeofday(&struct_time_mill,NULL);
     
-    time_ = struct_time_mill.tv_sec * 1000 + struct_time_mill.tv_usec / 1000;
-    return time_;
+    mtime_t curr_time = struct_time_mill.tv_sec * 1000 + struct_time_mill.tv_usec / 1000;
+    return curr_time;
 }
 
 std::string 
 Time::format(bool mills_enable, const char *fmt)
 {
-    return convert_to(time_, mills_enable, fmt);
+    return convert_to(Time::now(), mills_enable, fmt);
 }
 
 void Time::add(const stime_t &t)

@@ -96,18 +96,18 @@ SocketTCP::get_socket(void)
     return socket_;
 }
 
-int 
+std::string
 SocketTCP::get_ip_info(std::string &ip, uint16_t &port)
 {
     if (is_enable_ == false) {
         LOG_WARN("Please create socket first.");
-        return -1;
+        return "";
     }
 
     ip = ip_;
     port = port_;
 
-    return 0;
+    return ip_ + ":" + std::to_string(port);
 }
 
 int 
@@ -249,8 +249,13 @@ SocketTCP::recv(ByteBuffer &buff, int flags)
     do {
         ret = ::recv(socket_, buffer, 2048, flags);
         if (ret < 0) {
+            if (errno == EWOULDBLOCK || errno == EAGAIN) {
+                break;
+            }
+
             if (errno != EINTR) {
                 LOG_ERROR("recv: %s", strerror(errno));
+                this->close();
                 break;
             }
             continue;

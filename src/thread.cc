@@ -196,8 +196,11 @@ WorkThread::reset_idle_life(void)
 ThreadPool::ThreadPool(void)
 : exit_(false)
 {
-    thread_pool_config_.min_thread_num = 5;
-    thread_pool_config_.max_thread_num = 10;
+    int min_cores = SystemInfo::get_nprocs() / 2;
+    // 根据CPU数和核心数来设置线程的最大最小值
+    thread_pool_config_.min_thread_num = (min_cores <= 0 ? 1 : min_cores);
+    thread_pool_config_.max_thread_num = thread_pool_config_.min_thread_num * 2;
+
     thread_pool_config_.idle_thread_life = 30;
     thread_pool_config_.max_waiting_task = 500;
     thread_pool_config_.threadpool_exit_action = SHUTDOWN_ALL_THREAD_IMMEDIATELY;
