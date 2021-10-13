@@ -96,18 +96,24 @@ SocketTCP::get_socket(void)
     return socket_;
 }
 
-std::string
+int
 SocketTCP::get_ip_info(std::string &ip, uint16_t &port)
 {
     if (is_enable_ == false) {
         LOG_WARN("Please create socket first.");
-        return "";
+        return -1;
     }
 
     ip = ip_;
     port = port_;
 
-    return ip_ + ":" + std::to_string(port);
+    return 0;
+}
+
+std::string 
+SocketTCP::get_ip_info(void)
+{
+    return ip_ + ":" + std::to_string(port_);
 }
 
 int 
