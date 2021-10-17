@@ -116,6 +116,12 @@ SocketTCP::get_ip_info(void)
     return ip_ + ":" + std::to_string(port_);
 }
 
+bool 
+SocketTCP::get_socket_state(void) const
+{
+    return is_enable_;
+}
+
 int 
 SocketTCP::set_socket(int clisock, struct sockaddr_in *cliaddr, socklen_t *addrlen)
 {
