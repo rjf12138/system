@@ -15,7 +15,7 @@ int
 SystemInfo::get_nprocs(void)
 {
 #ifdef __RJF_LINUX__
-    return get_nprocs();
+    return ::get_nprocs();
 #elif defined(__RJF_WINDOWS__)
 #endif
 }

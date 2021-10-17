@@ -18,6 +18,7 @@
 #include <utility>
 #include <regex>
 #include <csignal>
+#include <set>
 
 //using namespace std;
 
@@ -32,15 +33,18 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <setjmp.h>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/epoll.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
 #include <sys/time.h>
-#include <setjmp.h>
+#include <sys/sysinfo.h>
+
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #elif defined(__RJF_WINDOWS__)
 #include <window.h>
