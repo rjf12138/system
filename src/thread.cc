@@ -204,6 +204,7 @@ ThreadPool::ThreadPool(void)
     thread_pool_config_.idle_thread_life = 30;
     thread_pool_config_.max_waiting_task = 500;
     thread_pool_config_.threadpool_exit_action = SHUTDOWN_ALL_THREAD_IMMEDIATELY;
+
     this->manage_work_threads(true);
     state_ = WorkThread_WAITING;
 }
@@ -217,7 +218,6 @@ int
 ThreadPool::run_handler(void)
 {
     while (!exit_) {
-        Time::sleep(10);
         this->manage_work_threads(false);
     }
 
@@ -352,6 +352,9 @@ ThreadPool::manage_work_threads(bool is_init)
                 }
             }
         }
+    } else {
+        // 没有任务休眠 5 ms
+        Time::sleep(5);
     }
 
     bool is_close = true;
@@ -489,28 +492,6 @@ ThreadPool::shutdown_all_threads(void)
     return 0;
 }
 
-std::string 
-ThreadPool::info(void)
-{
-    std::ostringstream ostr;
-    ThreadPoolRunningInfo info = this->get_running_info();
-
-    ostr << "==================thread pool config==========================" << std::endl;
-    ostr << "max-threads: " << thread_pool_config_.max_thread_num << std::endl;
-    ostr << "min-threads: " << thread_pool_config_.min_thread_num << std::endl;
-    ostr << "max-waiting-tasks: " << thread_pool_config_.max_waiting_task << std::endl;
-    ostr << "idle-thread-life: " << thread_pool_config_.idle_thread_life << std::endl;
-    ostr << "action when threadpool exit: " << info.exit_action << std::endl;
-    ostr << "==================thread pool realtime data===================" << std::endl;
-    ostr << "running threads: " << runing_threads_.size() << std::endl;
-    ostr << "idle threads: " << idle_threads_.size() << std::endl;
-    ostr << "waiting tasks: " << tasks_.size() << std::endl;
-    ostr << "waiting prio tasks: " << priority_tasks_.size() << std::endl;
-    ostr << "thread pool state: " << info.curr_status << std::endl;
-    ostr << "===========================end================================" << std::endl;
-
-    return ostr.str();
-}
 
 ThreadPoolRunningInfo 
 ThreadPool::get_running_info(void)
@@ -532,6 +513,48 @@ ThreadPool::get_running_info(void)
     running_info.waiting_prio_tasks = priority_tasks_.size();
 
     return running_info;
+}
+
+void 
+ThreadPool::show_threadpool_info(void)
+{
+    os::Task task;
+    task.work_func = print_threadpool_info;
+    task.thread_arg = this;
+
+    add_task(task);
+}
+
+void*
+ThreadPool::print_threadpool_info(void *arg)
+{
+    if (arg == nullptr) {
+        return nullptr;
+    }
+
+    ThreadPool* thread_pool_ptr = reinterpret_cast<ThreadPool*>(arg);
+    while (thread_pool_ptr->exit_ == false) {
+        std::ostringstream ostr;
+        ThreadPoolRunningInfo info = thread_pool_ptr->get_running_info();
+
+        ostr << "==================thread pool config==========================" << std::endl;
+        ostr << "max-threads: " << thread_pool_ptr->thread_pool_config_.max_thread_num << std::endl;
+        ostr << "min-threads: " << thread_pool_ptr->thread_pool_config_.min_thread_num << std::endl;
+        ostr << "max-waiting-tasks: " << thread_pool_ptr->thread_pool_config_.max_waiting_task << std::endl;
+        ostr << "idle-thread-life: " << thread_pool_ptr->thread_pool_config_.idle_thread_life << std::endl;
+        ostr << "action when threadpool exit: " << info.exit_action << std::endl;
+        ostr << "==================thread pool realtime data===================" << std::endl;
+        ostr << "running threads: " << thread_pool_ptr->runing_threads_.size() << std::endl;
+        ostr << "idle threads: " << thread_pool_ptr->idle_threads_.size() << std::endl;
+        ostr << "waiting tasks: " << thread_pool_ptr->tasks_.size() << std::endl;
+        ostr << "waiting prio tasks: " << thread_pool_ptr->priority_tasks_.size() << std::endl;
+        ostr << "thread pool state: " << info.curr_status << std::endl;
+        ostr << "===========================end================================" << std::endl;
+
+        LOG_GLOBAL_TRACE("\n%s", ostr.str().c_str());
+    }
+
+    return nullptr;
 }
 
 }
