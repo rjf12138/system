@@ -324,12 +324,14 @@ int
 ThreadPool::manage_work_threads(bool is_init)
 {
     if (is_init) {
+        // 初始化最小运行线程数
         for (std::size_t i = 0; i < thread_pool_config_.min_thread_num; ++i) {
             WorkThread *work_thread = new WorkThread(this);
             work_thread->init();
             idle_threads_[(int64_t)work_thread] = work_thread;
         }
-
+        // 运行线程池
+        this->init();
         return 0;
     }
 
@@ -550,8 +552,9 @@ ThreadPool::print_threadpool_info(void *arg)
         ostr << "waiting prio tasks: " << thread_pool_ptr->priority_tasks_.size() << std::endl;
         ostr << "thread pool state: " << info.curr_status << std::endl;
         ostr << "===========================end================================" << std::endl;
-
         LOG_GLOBAL_TRACE("\n%s", ostr.str().c_str());
+
+        Time::sleep(2000);
     }
 
     return nullptr;
