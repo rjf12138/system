@@ -194,7 +194,8 @@ WorkThread::reset_idle_life(void)
 
 ///////////////////////////////////////////////////////////////////////////////////
 ThreadPool::ThreadPool(void)
-: exit_(false)
+: exit_(false),
+ state_(WorkThread_WAITING)
 {
     int min_cores = SystemInfo::get_nprocs() / 2;
     // 根据CPU数和核心数来设置线程的最大最小值
@@ -206,7 +207,6 @@ ThreadPool::ThreadPool(void)
     thread_pool_config_.threadpool_exit_action = SHUTDOWN_ALL_THREAD_IMMEDIATELY;
 
     this->manage_work_threads(true);
-    state_ = WorkThread_WAITING;
 }
 
 ThreadPool::~ThreadPool(void)
