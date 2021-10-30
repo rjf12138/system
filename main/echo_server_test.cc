@@ -6,8 +6,8 @@ using namespace std;
 
 void *echo_handler(void *arg);
 void *echo_exit(void *arg);
-void *print_threadpool_info(void *arg);
-void *print_threadpool_exit(void *arg);
+// void *print_threadpool_info(void *arg);
+// void *print_threadpool_exit(void *arg);
 
 ThreadPool pool;
 bool server_exit = false;
@@ -40,6 +40,7 @@ int main(void)
     ThreadPoolConfig config = {min_thread, max_thread, 30, SHUTDOWN_ALL_THREAD_IMMEDIATELY};
     pool.init();
     pool.set_threadpool_config(config);
+    pool.show_threadpool_info();
 
     SocketTCP echo_server("127.0.0.1", 12138);
     echo_server.set_reuse_addr();
@@ -56,8 +57,6 @@ int main(void)
     Task task;
     task.exit_arg = &server_exit;
     task.thread_arg = &pool;
-    task.work_func = print_threadpool_info;
-    task.exit_task = print_threadpool_exit;
     pool.add_task(task);
 
     while (!server_exit) {
@@ -148,24 +147,24 @@ void *echo_exit(void *arg)
     return nullptr;
 }
 
-void *print_threadpool_info(void *arg)
-{
-    if (arg == nullptr) {
-        return nullptr;
-    }
+// void *print_threadpool_info(void *arg)
+// {
+//     if (arg == nullptr) {
+//         return nullptr;
+//     }
 
-    ThreadPool *threadpool = (ThreadPool*)arg;
-    while (!print_exit) {
-        LOG_GLOBAL_INFO("\n%s\n", threadpool->info().c_str());
-        Time::sleep(1000);
-    }
+//     ThreadPool *threadpool = (ThreadPool*)arg;
+//     while (!print_exit) {
+//         LOG_GLOBAL_INFO("\n%s\n", threadpool->info().c_str());
+//         Time::sleep(1000);
+//     }
 
-    return nullptr;
-}
+//     return nullptr;
+// }
 
-void *print_threadpool_exit(void *arg)
-{
-    print_exit = true;
-    LOG_GLOBAL_DEBUG("Exit print thread pool");
-    return nullptr;
-}
+// void *print_threadpool_exit(void *arg)
+// {
+//     print_exit = true;
+//     LOG_GLOBAL_DEBUG("Exit print thread pool");
+//     return nullptr;
+// }

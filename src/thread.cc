@@ -2,7 +2,8 @@
 
 namespace os {
 
-Thread::Thread(void) 
+Thread::Thread(void)
+:is_init_(false)
 {
     this->set_stream_func(LOG_LEVEL_TRACE, g_msg_to_stream_trace);
     this->set_stream_func(LOG_LEVEL_DEBUG, g_msg_to_stream_debug);
@@ -12,7 +13,12 @@ Thread::Thread(void)
     this->set_stream_func(LOG_LEVEL_FATAL, g_msg_to_stream_fatal);
 }
 
-Thread::~Thread(void) { }
+Thread::~Thread(void) 
+{
+    if (is_init_ == true) {
+        pthread_attr_destroy(&attr_);
+    }
+}
 
 void* 
 Thread::create_func(void* arg)
@@ -31,8 +37,11 @@ int
 Thread::init(void)
 {
     this->start_handler();
+    is_init_ = true;
 #ifdef __RJF_LINUX__
-    int ret = ::pthread_create(&thread_id_, NULL, create_func, (void*)this);
+    pthread_attr_init(&attr_);
+    pthread_attr_setdetachstate(&attr_, PTHREAD_CREATE_DETACHED);
+    int ret = ::pthread_create(&thread_id_, &attr_, create_func, (void*)this);
     if (ret != 0) {
         LOG_ERROR("pthread_create(): %s", strerror(ret));
         return -1;
@@ -366,7 +375,8 @@ ThreadPool::manage_work_threads(bool is_init)
             is_close = false;
         }
 
-        auto stop_iter = iter++; // stop_handler 可能会改变idle_threads从而影响到当前的iter,先提前自增
+        thread_mutex_.lock();
+        auto stop_iter = iter++; // stop_handler 可能会改变 idle_threads 从而影响到当前的 iter ,先提前自增
         bool timeout = stop_iter->second->idle_timeout();
         if (timeout) {
             if (is_close) {
@@ -376,6 +386,7 @@ ThreadPool::manage_work_threads(bool is_init)
                 stop_iter->second->reset_idle_life();
             }
         }
+        thread_mutex_.unlock();
         is_close = true;
     }
 
