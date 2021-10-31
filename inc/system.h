@@ -168,7 +168,6 @@ enum ThreadState {
 
 class ThreadPool;
 class WorkThread : public Thread {
-    friend ThreadPool;
 public:
     WorkThread(ThreadPool *thread_pool, int idle_life = 30);
     virtual ~WorkThread(void);
@@ -250,6 +249,9 @@ public:
     int add_task(Task &task);
     // 任务将被优先执行
     int add_priority_task(Task &task);
+    // 获取任务，优先队列中的任务先被取出,有任务返回大于0，否则返回等于0
+    // 除了工作线程之外，其他任何代码都不要去调用该函数，否则会导致的任务丢失
+    int get_task(Task &task);
 
     // 设置最小的线程数量，当线程数量等于它时，线程即使超出它寿命依旧不杀死
     int set_threadpool_config(const ThreadPoolConfig &config);
@@ -267,10 +269,6 @@ public:
 private:
     // 关闭线程池中的所有线程
     int shutdown_all_threads(void);
-
-    // 获取任务，优先队列中的任务先被取出,有任务返回大于0，否则返回等于0
-    // 除了工作线程之外，其他任何代码都不要去调用该函数，否则会导致的任务丢失
-    int get_task(Task &task);
 
     // 移除已经关闭的工作线程信息
     // 注意：使用时要确保线程已经结束了

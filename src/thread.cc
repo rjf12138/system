@@ -157,13 +157,13 @@ WorkThread::start_handler(void)
 int 
 WorkThread::pause(void)
 {
+    mutex_.lock();
     if (state_ == WorkThread_RUNNING) {
-        mutex_.lock();
         state_ = WorkThread_WAITING;
         start_idle_life_ = time(NULL);
-        mutex_.unlock();
-        thread_pool_->thread_move_to_idle_map((int64_t)this);
+        // thread_pool_->thread_move_to_idle_map((int64_t)this);
     }
+    mutex_.unlock();
 
     return 0;
 }
@@ -171,12 +171,12 @@ WorkThread::pause(void)
 int 
 WorkThread::resume(void)
 {
+    mutex_.lock();
     if (state_ == WorkThread_WAITING) {
         state_ = WorkThread_RUNNING;
-        thread_pool_->thread_move_to_running_map((int64_t)this);
+        // thread_pool_->thread_move_to_running_map((int64_t)this);
     }
 
-    mutex_.lock();
     thread_cond_signal();
     mutex_.unlock();
 
@@ -341,6 +341,7 @@ ThreadPool::manage_work_threads(bool is_init)
         }
         // 运行线程池
         this->init();
+        is_init = false;
         return 0;
     }
 
@@ -450,7 +451,7 @@ ThreadPool::set_threadpool_config(const ThreadPoolConfig &config)
     if (config.min_thread_num < 0 || config.min_thread_num > MAX_THREADS_NUM) {
         LOG_WARN("min thread num is out of range --- %d", config.min_thread_num);
     } else {
-        thread_pool_config_.min_thread_num =  config.min_thread_num;
+        thread_pool_config_.min_thread_num = config.min_thread_num;
     }
 
     if (config.max_thread_num < config.min_thread_num || config.max_thread_num > MAX_THREADS_NUM) {
