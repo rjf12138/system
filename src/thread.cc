@@ -74,7 +74,7 @@ WorkThread::WorkThread(ThreadPool *thread_pool, int idle_life)
 : idle_life_(idle_life), thread_pool_(thread_pool)
 {
     start_idle_life_ = time(NULL);
-    thread_id_ = (int64_t)this;
+    thread_id_ = (thread_id_t)this;
 #ifdef __RJF_LINUX__
     pthread_cond_init(&thread_cond_, NULL);
 #endif
@@ -123,7 +123,7 @@ WorkThread::run_handler(void)
         this->pause();
     }
     // 从线程池中删除关闭的线程信息
-    thread_pool_->remove_thread((int64_t)this);
+    thread_pool_->remove_thread(thread_id_);
 
     return 0;
 }
@@ -140,7 +140,7 @@ WorkThread::stop_handler(void)
             task_.exit_task(task_.exit_arg);
         }
     } else if (old_state == WorkThread_WAITING) { // 唤醒空闲线程，然后走结束线程的流程
-        this->resume();
+        thread_pool_->thread_move_to_running_map(thread_id_);
     }
 
     return 0;
@@ -161,7 +161,6 @@ WorkThread::pause(void)
     if (state_ == WorkThread_RUNNING) {
         state_ = WorkThread_WAITING;
         start_idle_life_ = time(NULL);
-        // thread_pool_->thread_move_to_idle_map((int64_t)this);
     }
     mutex_.unlock();
 
@@ -174,7 +173,6 @@ WorkThread::resume(void)
     mutex_.lock();
     if (state_ == WorkThread_WAITING) {
         state_ = WorkThread_RUNNING;
-        // thread_pool_->thread_move_to_running_map((int64_t)this);
     }
 
     thread_cond_signal();
@@ -262,6 +260,7 @@ ThreadPool::add_task(Task &task)
         LOG_INFO("The number of tasks in the cache has reached the maximum.[size: %d, max: %d]", tasks_.size(), thread_pool_config_.max_waiting_task);
         return 0;
     }
+
     task_mutex_.lock();
     int ret = tasks_.push(task);
     task_mutex_.unlock();
@@ -306,7 +305,7 @@ ThreadPool::get_task(Task &task)
 }
 
 int 
-ThreadPool::remove_thread(int64_t thread_id)
+ThreadPool::remove_thread(thread_id_t thread_id)
 {
     thread_mutex_.lock();
     auto remove_iter = idle_threads_.find(thread_id);
@@ -345,23 +344,13 @@ ThreadPool::manage_work_threads(bool is_init)
         return 0;
     }
 
-    if (tasks_.size() > 0 ) {
+    if (tasks_.size() > 0 ) { // TODO 调整线程
         int awake_threads = tasks_.size() / 2 + 1;
-        for (int i = 0; i < awake_threads; ++i) {
-            if (idle_threads_.size() > 0) {
-                idle_threads_.begin()->second->resume();
-            } else {
-                if (runing_threads_.size() < thread_pool_config_.max_thread_num) {
-                    WorkThread *work_thread = new WorkThread(this);
-                    work_thread->init();
-                    idle_threads_[(int64_t)work_thread] = work_thread;
-                    --i;
-                    continue;
-                } else {
-                    // 可分配的线程数已经达到最大
-                    LOG_WARN("run out of threads: running threads: %d, max threads: %d", runing_threads_.size(), thread_pool_config_.max_thread_num);
-                    break;
-                }
+        int ret = thread_move_to_running_map(awake_threads);
+        if (ret < awake_threads) {
+            if (create_work_thread(ret) <= 0) {
+                // 可分配的线程数已经达到最大
+                LOG_WARN("run out of threads: running threads: %d, max threads: %d", runing_threads_.size(), thread_pool_config_.max_thread_num);
             }
         }
     } else {
@@ -394,54 +383,95 @@ ThreadPool::manage_work_threads(bool is_init)
     return 0;
 }
 
+int
+ThreadPool::create_work_thread(int threads_num)
+{
+    if (threads_num <= 0) {
+        return 0;
+    }
+    std::size_t reset_threads = thread_pool_config_.max_thread_num - (idle_threads_.size() + runing_threads_.size());
+    std::size_t create_threads = (threads_num > reset_threads ? reset_threads : threads_num);
+    for (std::size_t i = 0; i < create_threads; ++i) {
+        WorkThread *work_thread = new WorkThread(this);
+        work_thread->init();
+        thread_move_to_idle_map(work_thread->get_thread_id());
+    }
+
+    return create_threads;
+}
+
 int 
-ThreadPool::thread_move_to_idle_map(int64_t thread_id)
+ThreadPool::thread_move_to_idle_map(thread_id_t thread_id)
 {
     thread_mutex_.lock();
     auto iter = runing_threads_.find(thread_id);
     if (iter == runing_threads_.end()) {
         LOG_WARN("Can't find thread(thread_id: %ld) at runing_threads", thread_id);
         thread_mutex_.unlock();
-        return -1;
+        return 0;
     }
 
     if (idle_threads_.find(thread_id) != idle_threads_.end()) {
         LOG_WARN("There is exists a thread(thread_id: %ld) at idle_threads", thread_id);
         thread_mutex_.unlock();
-        return -1;
+        return 0;
     }
 
     idle_threads_[thread_id] = iter->second;
     runing_threads_.erase(iter);
+    idle_threads_[thread_id]->pause();
 
     thread_mutex_.unlock();
 
-    return 0;
+    return 1;
 }
 
 int 
-ThreadPool::thread_move_to_running_map(int64_t thread_id)
+ThreadPool::thread_move_to_running_map(thread_id_t thread_id)
 {
     thread_mutex_.lock();
     auto iter = idle_threads_.find(thread_id);
     if (iter == idle_threads_.end()) {
         LOG_WARN("Can't find thread(thread_id: %ld) at idle_threads", thread_id);
         thread_mutex_.unlock();
-        return -1;
+        return 0;
     }
 
     if (runing_threads_.find(thread_id) != runing_threads_.end()) {
         LOG_WARN("There is exists a thread(thread_id: %ld) at runing_threads", thread_id);
         thread_mutex_.unlock();
-        return -1;
+        return 0;
     }
 
     runing_threads_[thread_id] = iter->second;
     idle_threads_.erase(iter);
+    runing_threads_[thread_id]->resume();
 
     thread_mutex_.unlock();
 
-    return 0;
+    return 1;
+}
+
+int
+ThreadPool::thread_move_to_running_map(int thread_cnt)
+{
+    thread_mutex_.unlock();
+    if (idle_threads_.size() <= 0) {
+        thread_mutex_.unlock();
+        return 0;
+    }
+
+    thread_cnt = (idle_threads_.size() > thread_cnt ? thread_cnt:idle_threads_.size());
+    for (int i = 0; i < thread_cnt; ++i) {
+        auto iter = idle_threads_.begin();
+        runing_threads_[iter->first] = iter->second;
+        idle_threads_.erase(iter);
+        runing_threads_[iter->first]->resume();
+    }
+
+    thread_mutex_.unlock();
+
+    return thread_cnt;
 }
 
 int 
