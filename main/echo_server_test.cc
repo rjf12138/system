@@ -35,11 +35,7 @@ int main(void)
     ByteBuffer buff;
     string str;
 
-    std::size_t min_thread = 100;
-    std::size_t max_thread = 120;
-    ThreadPoolConfig config = {min_thread, max_thread, 30, SHUTDOWN_ALL_THREAD_IMMEDIATELY};
     pool.init();
-    pool.set_threadpool_config(config);
     pool.show_threadpool_info();
 
     SocketTCP echo_server("127.0.0.1", 12138);

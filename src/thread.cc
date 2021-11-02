@@ -119,8 +119,7 @@ WorkThread::run_handler(void)
                 task_.state = THREAD_TASK_COMPLETE;
             }
         }
-
-        this->pause();
+        thread_pool_->thread_move_to_idle_map(thread_id_);
     }
     // 从线程池中删除关闭的线程信息
     thread_pool_->remove_thread(thread_id_);
@@ -206,14 +205,20 @@ ThreadPool::ThreadPool(void)
 {
     int min_cores = SystemInfo::get_nprocs() / 2;
     // 根据CPU数和核心数来设置线程的最大最小值
-    thread_pool_config_.min_thread_num = (min_cores <= 0 ? 1 : min_cores);
-    thread_pool_config_.max_thread_num = thread_pool_config_.min_thread_num * 2;
-
-    thread_pool_config_.idle_thread_life = 30;
+    thread_pool_config_.threads_num = (min_cores <= 0 ? 1 : min_cores);
     thread_pool_config_.max_waiting_task = 500;
     thread_pool_config_.threadpool_exit_action = SHUTDOWN_ALL_THREAD_IMMEDIATELY;
 
-    this->manage_work_threads(true);
+    // 运行所有线程
+    thread_mutex_.lock();
+    for (std::size_t i = 0; i < thread_pool_config_.threads_num; ++i) {
+        WorkThread *work_thread = new WorkThread(this);
+        work_thread->init();
+        idle_threads_[work_thread->get_thread_id()] = work_thread;
+    }
+    thread_mutex_.unlock();
+    // 运行线程池
+    this->init();
 }
 
 ThreadPool::~ThreadPool(void)
@@ -225,7 +230,11 @@ int
 ThreadPool::run_handler(void)
 {
     while (!exit_) {
-        this->manage_work_threads(false);
+        if (thread_move_to_running_map(tasks_.size()) < 0 || 
+                runing_threads_.size() == thread_pool_config_.threads_num) {
+            // 没有任务休眠 5 ms
+            Time::sleep(5);
+        }
     }
 
     return 0;
@@ -329,78 +338,6 @@ ThreadPool::remove_thread(thread_id_t thread_id)
 }
 
 int 
-ThreadPool::manage_work_threads(bool is_init)
-{
-    if (is_init) {
-        // 初始化最小运行线程数
-        for (std::size_t i = 0; i < thread_pool_config_.min_thread_num; ++i) {
-            WorkThread *work_thread = new WorkThread(this);
-            work_thread->init();
-            idle_threads_[(int64_t)work_thread] = work_thread;
-        }
-        // 运行线程池
-        this->init();
-        is_init = false;
-        return 0;
-    }
-
-    if (tasks_.size() > 0 ) { // TODO 调整线程
-        int awake_threads = tasks_.size() / 2 + 1;
-        int ret = thread_move_to_running_map(awake_threads);
-        if (ret < awake_threads) {
-            if (create_work_thread(ret) <= 0) {
-                // 可分配的线程数已经达到最大
-                LOG_WARN("run out of threads: running threads: %d, max threads: %d", runing_threads_.size(), thread_pool_config_.max_thread_num);
-            }
-        }
-    } else {
-        // 没有任务休眠 5 ms
-        Time::sleep(5);
-    }
-
-    bool is_close = true;
-    std::size_t workthread_cnt = idle_threads_.size() + runing_threads_.size();
-    for (auto iter = idle_threads_.begin(); iter != idle_threads_.end();) {
-        if (workthread_cnt <= thread_pool_config_.min_thread_num) { // 线程不能小于设置的最小线程数
-            is_close = false;
-        }
-
-        thread_mutex_.lock();
-        auto stop_iter = iter++; // stop_handler 可能会改变 idle_threads 从而影响到当前的 iter ,先提前自增
-        bool timeout = stop_iter->second->idle_timeout();
-        if (timeout) {
-            if (is_close) {
-                stop_iter->second->stop_handler(); // 关闭多余的超时空闲线程
-                workthread_cnt--;
-            } else {
-                stop_iter->second->reset_idle_life();
-            }
-        }
-        thread_mutex_.unlock();
-        is_close = true;
-    }
-
-    return 0;
-}
-
-int
-ThreadPool::create_work_thread(int threads_num)
-{
-    if (threads_num <= 0) {
-        return 0;
-    }
-    std::size_t reset_threads = thread_pool_config_.max_thread_num - (idle_threads_.size() + runing_threads_.size());
-    std::size_t create_threads = (threads_num > reset_threads ? reset_threads : threads_num);
-    for (std::size_t i = 0; i < create_threads; ++i) {
-        WorkThread *work_thread = new WorkThread(this);
-        work_thread->init();
-        thread_move_to_idle_map(work_thread->get_thread_id());
-    }
-
-    return create_threads;
-}
-
-int 
 ThreadPool::thread_move_to_idle_map(thread_id_t thread_id)
 {
     thread_mutex_.lock();
@@ -464,11 +401,11 @@ ThreadPool::thread_move_to_running_map(int thread_cnt)
     thread_cnt = (idle_threads_.size() > thread_cnt ? thread_cnt:idle_threads_.size());
     for (int i = 0; i < thread_cnt; ++i) {
         auto iter = idle_threads_.begin();
-        runing_threads_[iter->first] = iter->second;
+        thread_id_t id = iter->first;
+        runing_threads_[id] = iter->second;
         idle_threads_.erase(iter);
-        runing_threads_[iter->first]->resume();
+        runing_threads_[id]->resume();
     }
-
     thread_mutex_.unlock();
 
     return thread_cnt;
@@ -478,22 +415,10 @@ int
 ThreadPool::set_threadpool_config(const ThreadPoolConfig &config)
 {
 
-    if (config.min_thread_num < 0 || config.min_thread_num > MAX_THREADS_NUM) {
-        LOG_WARN("min thread num is out of range --- %d", config.min_thread_num);
+    if (config.threads_num < 0 || config.threads_num > MAX_THREADS_NUM) {
+        LOG_WARN("thread num is out of range --- %d", config.threads_num);
     } else {
-        thread_pool_config_.min_thread_num = config.min_thread_num;
-    }
-
-    if (config.max_thread_num < config.min_thread_num || config.max_thread_num > MAX_THREADS_NUM) {
-        LOG_WARN("max thread num is out of range --- %d", config.max_thread_num);
-    } else {
-        thread_pool_config_.max_thread_num =  config.max_thread_num;
-    }
-
-    if (thread_pool_config_.idle_thread_life <= 0 || thread_pool_config_.idle_thread_life > MAX_THREAD_IDLE_LIFE) {
-        LOG_WARN("thread life is out of range --- %d", thread_pool_config_.idle_thread_life);
-    } else {
-        thread_pool_config_.idle_thread_life = config.idle_thread_life;
+        thread_pool_config_.threads_num = config.threads_num;
     }
 
     if (config.threadpool_exit_action == WAIT_FOR_ALL_TASKS_FINISHED ) {
@@ -582,10 +507,8 @@ ThreadPool::print_threadpool_info(void *arg)
         ThreadPoolRunningInfo info = thread_pool_ptr->get_running_info();
 
         ostr << "==================thread pool config==========================" << std::endl;
-        ostr << "max-threads: " << thread_pool_ptr->thread_pool_config_.max_thread_num << std::endl;
-        ostr << "min-threads: " << thread_pool_ptr->thread_pool_config_.min_thread_num << std::endl;
+        ostr << "max-threads: " << thread_pool_ptr->thread_pool_config_.threads_num << std::endl;
         ostr << "max-waiting-tasks: " << thread_pool_ptr->thread_pool_config_.max_waiting_task << std::endl;
-        ostr << "idle-thread-life: " << thread_pool_ptr->thread_pool_config_.idle_thread_life << std::endl;
         ostr << "action when threadpool exit: " << info.exit_action << std::endl;
         ostr << "==================thread pool realtime data===================" << std::endl;
         ostr << "running threads: " << thread_pool_ptr->runing_threads_.size() << std::endl;

@@ -24,13 +24,9 @@ int main(void)
     ByteBuffer buff;
     string str;
 
-    std::size_t min_thread = 45;
-    std::size_t max_thread = 45;
-    ThreadPoolConfig config = {min_thread, max_thread, 30, SHUTDOWN_ALL_THREAD_IMMEDIATELY};
     pool.init();
-    pool.set_threadpool_config(config);
 
-    for (std::size_t j = 1;j <= min_thread;++j) {
+    for (std::size_t j = 1;j <= 50;++j) {
         for (std::size_t i = 0; i < j; ++i) {
             SocketTCP *cli = new SocketTCP("127.0.0.1", 12138);
             Task task;
@@ -47,7 +43,7 @@ int main(void)
             write_file.write_file_fmt("create: %d\n", cli->get_socket());
             pool.add_task(task);
         }
-        if (j == min_thread) {
+        if (j == 50) {
             j = 1;
         }
         if (exit_state == true)

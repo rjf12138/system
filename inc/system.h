@@ -217,10 +217,8 @@ enum ThreadPoolExitAction {
 };
 
 struct ThreadPoolConfig {
-    std::size_t min_thread_num;             // 最小线程数
-    std::size_t max_thread_num;             // 最大线程数
-    std::size_t max_waiting_task;           // 缓存中保存的最大任务数
-    int idle_thread_life;                   // 空闲线程的存在
+    std::size_t threads_num;             // 线程数
+    std::size_t max_waiting_task;        // 缓存中保存的最大任务数
     ThreadPoolExitAction threadpool_exit_action; // 默认时强制关闭所有线程
 };
 
@@ -275,13 +273,6 @@ private:
     // 获取任务，优先队列中的任务先被取出,有任务返回大于0，否则返回等于0
     // 除了工作线程之外，其他任何代码都不要去调用该函数，否则会导致的任务丢失
     int get_task(Task &task);
-
-    // 工作线程初始化以及动态调整线程数量
-    // 任务的分配
-    int manage_work_threads(bool is_init);
-
-    int create_work_thread(int threads_num);
-    int adjust_running_threads(void);
 
     // 休眠指定线程
     int thread_move_to_idle_map(thread_id_t thread_id);
