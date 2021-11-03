@@ -24,7 +24,7 @@ int main(int argc, char** argv)
             break;
         }
     }
-
+    std::cout << "Exit.." << std::endl;
     return 0;
 }
 

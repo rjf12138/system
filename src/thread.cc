@@ -55,26 +55,12 @@ int Thread::run_handler(void) { return 0;}
 int Thread::stop_handler(void) {return 0; }
 int Thread::start_handler(void) {return 0; }
 
-int 
-Thread::wait_thread(void)
-{
-#ifdef __RJF_LINUX__
-    int ret = ::pthread_join(thread_id_, NULL);
-    if (ret != 0) {
-        LOG_ERROR("pthread_join(): %s", strerror(ret));
-        return -1;
-    }
-#endif
-
-    return 0;
-}
-
 ////////////////////////////////////// WorkThread ///////////////////////////////////////
 WorkThread::WorkThread(ThreadPool *thread_pool, int idle_life)
 : idle_life_(idle_life), thread_pool_(thread_pool)
 {
     start_idle_life_ = time(NULL);
-    thread_id_ = (thread_id_t)this;
+    work_thread_id_ = (thread_id_t)this;
 #ifdef __RJF_LINUX__
     pthread_cond_init(&thread_cond_, NULL);
 #endif
@@ -118,11 +104,9 @@ WorkThread::run_handler(void)
                 task_.work_func(task_.thread_arg);
                 task_.state = THREAD_TASK_COMPLETE;
             }
+            thread_pool_->thread_move_to_idle_map(work_thread_id_);
         }
-        thread_pool_->thread_move_to_idle_map(thread_id_);
     }
-    // 从线程池中删除关闭的线程信息
-    thread_pool_->remove_thread(thread_id_);
 
     return 0;
 }
@@ -139,7 +123,7 @@ WorkThread::stop_handler(void)
             task_.exit_task(task_.exit_arg);
         }
     } else if (old_state == WorkThread_WAITING) { // 唤醒空闲线程，然后走结束线程的流程
-        thread_pool_->thread_move_to_running_map(thread_id_);
+        thread_pool_->thread_move_to_running_map(work_thread_id_);
     }
 
     return 0;
@@ -180,24 +164,6 @@ WorkThread::resume(void)
     return 0;
 }
 
-int 
-WorkThread::idle_timeout(void)
-{
-    if (start_idle_life_ + idle_life_ < time(NULL)) {
-        return true;
-    }
-
-    return false;
-}
-
-int 
-WorkThread::reset_idle_life(void) 
-{
-    start_idle_life_ = time(NULL); 
-
-    return start_idle_life_;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////
 ThreadPool::ThreadPool(void)
 : exit_(false),
@@ -211,6 +177,7 @@ ThreadPool::ThreadPool(void)
 
     // 运行所有线程
     thread_mutex_.lock();
+    std::cerr << "thread_size: " << thread_pool_config_.threads_num << std::endl;
     for (std::size_t i = 0; i < thread_pool_config_.threads_num; ++i) {
         WorkThread *work_thread = new WorkThread(this);
         work_thread->init();
@@ -223,18 +190,27 @@ ThreadPool::ThreadPool(void)
 
 ThreadPool::~ThreadPool(void)
 {
+    this->stop_handler();
 
+    std::cerr << "thread_size: " << idle_threads_.size() << std::endl;
+    for (auto iter = idle_threads_.begin(); iter != idle_threads_.end(); ++iter) {
+        delete iter->second;
+    }
+
+    for (auto iter = runing_threads_.begin(); iter != runing_threads_.end(); ++iter) {
+        delete iter->second;
+    }
 }
 
 int 
 ThreadPool::run_handler(void)
 {
     while (!exit_) {
-        if (thread_move_to_running_map(tasks_.size()) < 0 || 
-                runing_threads_.size() == thread_pool_config_.threads_num) {
+        if (tasks_.size() <= 0 || runing_threads_.size() == thread_pool_config_.threads_num) {
             // 没有任务休眠 5 ms
             Time::sleep(5);
         }
+        thread_move_to_running_map(tasks_.size());
     }
 
     return 0;
@@ -242,9 +218,9 @@ ThreadPool::run_handler(void)
 
 int ThreadPool::stop_handler(void)
 {
-    this->shutdown_all_threads();
     exit_ = true;
     state_ = WorkThread_EXIT;
+    this->shutdown_all_threads();
     return 0;
 }
 
@@ -311,30 +287,6 @@ ThreadPool::get_task(Task &task)
     task_mutex_.unlock();
 
     return ret;
-}
-
-int 
-ThreadPool::remove_thread(thread_id_t thread_id)
-{
-    thread_mutex_.lock();
-    auto remove_iter = idle_threads_.find(thread_id);
-    if (remove_iter != idle_threads_.end()) {
-        if (remove_iter->second != nullptr) {
-            delete remove_iter->second;
-        }
-        idle_threads_.erase(remove_iter);
-    }
-
-    remove_iter = runing_threads_.find(thread_id);
-    if (remove_iter != runing_threads_.end()) {
-        if (remove_iter->second != nullptr) {
-            delete remove_iter->second;
-        }
-        runing_threads_.erase(remove_iter);
-    }
-    thread_mutex_.unlock();
-
-    return 0;
 }
 
 int 
