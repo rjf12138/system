@@ -107,13 +107,15 @@ WorkThread::run_handler(void)
             thread_pool_->thread_move_to_idle_map(work_thread_id_);
         }
     }
-
     return 0;
 }
 
 int
 WorkThread::stop_handler(void)
 {
+    if (state_ == WorkThread_EXIT) {
+        return 0;
+    }
     // 设置线程为退出状态
     int old_state = state_;
     state_ = WorkThread_EXIT;
@@ -123,7 +125,8 @@ WorkThread::stop_handler(void)
             task_.exit_task(task_.exit_arg);
         }
     } else if (old_state == WorkThread_WAITING) { // 唤醒空闲线程，然后走结束线程的流程
-        thread_pool_->thread_move_to_running_map(work_thread_id_);
+        this->resume();
+        // thread_pool_->thread_move_to_running_map(work_thread_id_);
     }
 
     return 0;
@@ -344,7 +347,7 @@ ThreadPool::thread_move_to_running_map(thread_id_t thread_id)
 int
 ThreadPool::thread_move_to_running_map(int thread_cnt)
 {
-    thread_mutex_.unlock();
+    thread_mutex_.lock();
     if (idle_threads_.size() <= 0) {
         thread_mutex_.unlock();
         return 0;
@@ -395,16 +398,17 @@ ThreadPool::shutdown_all_threads(void)
     } else {
         // 停止所有正在处理任务的线程
         for (auto iter = runing_threads_.begin(); iter != runing_threads_.end();) {
+            LOG_INFO("Stop running handler...");
             auto stop_iter = iter++;
             stop_iter->second->stop_handler();
         }
     }
 
     while (runing_threads_.size() > 0) {
-        LOG_INFO("shutdown threads waiting: %d threads still running", runing_threads_.size());
+        LOG_INFO("shutdown waiting threads: %d threads still running", runing_threads_.size());
         Time::sleep(500);
     }
-
+ 
     for (auto iter = idle_threads_.begin(); iter != idle_threads_.end(); ) {
         auto stop_iter = iter++;
         stop_iter->second->stop_handler();

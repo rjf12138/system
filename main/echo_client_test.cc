@@ -50,7 +50,14 @@ int main(void)
             break;
         Time::sleep(3000);
     }
-    pool.wait_thread();
+
+    while (true) {
+        char ch = getchar();
+        if (ch == 'q') {
+            break;
+        }
+    }
+    std::cout << "Exit.." << std::endl;
 
     return 0;
 }
