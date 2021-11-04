@@ -180,7 +180,6 @@ ThreadPool::ThreadPool(void)
 
     // 运行所有线程
     thread_mutex_.lock();
-    std::cerr << "thread_size: " << thread_pool_config_.threads_num << std::endl;
     for (std::size_t i = 0; i < thread_pool_config_.threads_num; ++i) {
         WorkThread *work_thread = new WorkThread(this);
         work_thread->init();
@@ -194,8 +193,6 @@ ThreadPool::ThreadPool(void)
 ThreadPool::~ThreadPool(void)
 {
     this->stop_handler();
-
-    std::cerr << "thread_size: " << idle_threads_.size() << std::endl;
     for (auto iter = idle_threads_.begin(); iter != idle_threads_.end(); ++iter) {
         delete iter->second;
     }
