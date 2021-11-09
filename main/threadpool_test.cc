@@ -7,6 +7,10 @@ void* test_thread_fun(void *arg);
 int main(int argc, char** argv)
 {
     ThreadPool pool;
+    ThreadPoolConfig config = pool.get_threadpool_config();
+    config.threads_num = 8;
+    pool.set_threadpool_config(config);
+    
     pool.show_threadpool_info();
     for (int i = 455; i < 465; ++i) {
         int *p = new int;

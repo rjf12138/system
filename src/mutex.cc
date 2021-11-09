@@ -10,7 +10,7 @@ Mutex::Mutex(void)
     this->set_stream_func(LOG_LEVEL_WARN, g_msg_to_stream_warn);
     this->set_stream_func(LOG_LEVEL_ERROR, g_msg_to_stream_error);
     this->set_stream_func(LOG_LEVEL_FATAL, g_msg_to_stream_fatal);
-
+    
     mutex_ptr_ = new pthread_mutex_t;
 #ifdef __RJF_LINUX__
     int ret = ::pthread_mutex_init(mutex_ptr_, NULL);
