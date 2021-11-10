@@ -15,7 +15,7 @@
 	"ExportFile": [
 		"gtest"
 	],
-	"GenerateFileType": "exe",
+	"GenerateFileType": "static_lib",
 	"HeaderFileDirectoryListing": [
 		
 	],

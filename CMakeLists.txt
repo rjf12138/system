@@ -17,8 +17,8 @@ target_compile_options(system_compiler_flags INTERFACE
 		$<${msvc_cxx}:$<BUILD_INTERFACE:-W3>>)
 
 # 设置生成文件输出路径
-set(EXECUTABLE_OUTPUT_PATH, ./output/debug/bin)
-add_executable(system ./main/threadpool_test.cc)
+set(LIBRARY_OUTPUT_PATH, ./output/debug/lib)
+add_library(system STATIC "")
 
 target_include_directories(system PUBLIC ./inc/)
 target_include_directories(system PRIVATE ./extern_inc/)

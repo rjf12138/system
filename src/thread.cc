@@ -197,7 +197,7 @@ ThreadPool::~ThreadPool(void)
         delete iter->second;
     }
 }
-// TODO:线程池不退出
+
 int 
 ThreadPool::run_handler(void)
 {
@@ -427,18 +427,19 @@ ThreadPool::shutdown_all_threads(void)
         }
     }
 
+    while (runing_threads_.size() > 0) {
+        LOG_INFO("shutdown running threads[size: %d]", idle_threads_.size());
+        Time::sleep(500);
+    }
+
     for (auto iter = idle_threads_.begin(); iter != idle_threads_.end(); ) {
         auto stop_iter = iter++;
         mtime_t curr = Time::now();
-        LOG_INFO("shutdown threads[size: %d]", idle_threads_.size());
+        stop_iter->second->stop_handler();
+        
         while (stop_iter->second->get_current_state() != WorkThread_EXIT) {
-            if (Time::now() - curr > 1000) {
-                LOG_INFO("shutdown threads[size: %d]", idle_threads_.size());
-                curr = Time::now();
-            }
             Time::sleep(10);
         }
-        stop_iter->second->stop_handler();
     }
 
     return 0;
@@ -504,7 +505,7 @@ ThreadPool::print_threadpool_info(void *arg)
 
         Time::sleep(2000);
     }
-
+    
     return nullptr;
 }
 
