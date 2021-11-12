@@ -289,15 +289,22 @@ SocketTCP::send(ByteBuffer &buff, int flags)
         return -1;
     }
 
+    const ssize_t send_once_size = 8192;
     ssize_t send_size = 0;
     do {
+        int ready_data_size = buff.get_cont_read_size() > send_once_size ? send_once_size : buff.get_cont_read_size();
         int ret = ::send(socket_, buff.get_read_buffer_ptr(), buff.get_cont_read_size(), flags);
         if (ret < 0) {
-            if (errno != EINTR) {
-                LOG_ERROR("send: %s", strerror(errno));
-                break;
+            // 在非阻塞模式下,send函数的过程仅仅是将数据拷贝到协议栈的缓存区而已,
+            // 如果缓存区可用空间不够,则尽能力的拷贝,返回成功拷贝的大小;
+            // 如缓存区可用空间为0,则返回-1,同时设置errno为EAGAIN.
+            if (errno == EAGAIN || errno == EINTR) {
+                Time::sleep(10);
+                continue;
             }
-            continue;
+
+            LOG_ERROR("send: %s", strerror(errno));
+            break;
         }
         send_size += ret;
         buff.update_read_pos(ret);
