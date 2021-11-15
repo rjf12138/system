@@ -134,8 +134,8 @@ SocketTCP::set_socket(int clisock, struct sockaddr_in *cliaddr, socklen_t *addrl
         return -1;
     }
 
-    char buf[128] = {0};
-    const char *ret = ::inet_ntop(AF_INET, &(cliaddr->sin_addr), buf, *addrlen);
+    char buf[256] = {0};
+    const char *ret = ::inet_ntop(AF_INET, &cliaddr->sin_addr, buf, *addrlen);
     if (ret == nullptr) {
         LOG_ERROR("inet_ntop: %s", strerror(errno));
         return -1;
