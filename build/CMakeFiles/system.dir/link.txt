@@ -1,2 +1,0 @@
-/usr/bin/ar qc libsystemd.a  CMakeFiles/system.dir/src/time.cc.o CMakeFiles/system.dir/src/file.cc.o CMakeFiles/system.dir/src/socket.cc.o CMakeFiles/system.dir/src/thread.cc.o CMakeFiles/system.dir/src/systeminfo.cc.o CMakeFiles/system.dir/src/mutex.cc.o CMakeFiles/system.dir/src/system.cc.o
-/usr/bin/ranlib libsystemd.a
