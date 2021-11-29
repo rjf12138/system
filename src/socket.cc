@@ -122,6 +122,50 @@ SocketTCP::get_socket_state(void) const
     return is_enable_;
 }
 
+bool 
+SocketTCP::check_ip_addr(std::string addr)
+{
+    int a,b,c,d;
+    if ((sscanf(addr.c_str(), "%d.%d.%d.%d",&a,&b,&c,&d) == 4)
+            && (a >= 0 && a <= 255)
+            && (b >= 0 && b <= 255)
+            && (c >= 0 && c <= 255)
+            && (d >= 0 && d <= 255))
+    {
+        return true;
+    }
+    return false;
+}
+
+int
+SocketTCP::get_addr_by_hostname(std::string hostname, std::string &addr)
+{
+    struct addrinfo     *ailist, *aip;
+    struct addrinfo     hint;
+    struct sockaddr_in  *sinp;
+    char                abuf[INET_ADDRSTRLEN];
+
+    int ret = getaddrinfo(hostname.c_str(), NULL, &hint, &ailist);
+    if (ret != 0) {
+        LOG_WARN("getaddrinfo: %s", strerror(errno));
+        return -1;
+    }
+
+    for (aip = ailist; aip != NULL; aip = aip->ai_next) {
+        if (aip->ai_family == AF_INET && aip->ai_protocol == IPPROTO_TCP) {
+            sinp = (struct sockaddr_in*)aip->ai_addr;
+            addr = inet_ntop(AF_INET, &sinp->sin_addr, abuf, INET_ADDRSTRLEN);
+            if (addr.length() == 0 || addr == "127.0.0.1") {
+                LOG_WARN("Cant get addr by hostname[%s]", hostname.c_str());
+                return -1;
+            }
+            break;
+        }
+    }
+
+    return 0;
+}
+
 int 
 SocketTCP::set_socket(int clisock, struct sockaddr_in *cliaddr, socklen_t *addrlen)
 {
@@ -155,6 +199,15 @@ SocketTCP::create_socket(std::string ip, uint16_t port)
     if (is_enable_ == true) {
         LOG_WARN("create_socket failed, there's already opened a socket.");
         return -1;
+    }
+
+    if (check_ip_addr(ip) == false) {
+        std::string addr;
+        int ret = get_addr_by_hostname(ip, addr);
+        if (ret < 0 && addr.length() > 0) {
+            return -1;
+        }
+        ip = addr;
     }
 
     ip_ = ip;
@@ -311,6 +364,126 @@ SocketTCP::send(ByteBuffer &buff, int flags)
     }  while (buff.data_size() > 0);
    
     return send_size;
+}
+
+//////////////////////////// Debug code ///////////////////////////////////////////////////
+void 
+SocketTCP::print_family(struct addrinfo *aip)
+{
+    printf(" family ");
+    switch (aip->ai_family) {
+        case AF_INET:
+            printf("inet"); break;
+        case AF_INET6:
+            printf("inet6"); break;
+        case AF_UNIX:
+            printf("unix"); break;
+        case AF_UNSPEC:
+            printf("unspecified"); break;
+        default:
+            printf("unknown");
+    }
+}
+void 
+SocketTCP::print_type(struct addrinfo *aip)
+{
+    printf(" type ");
+    switch (aip->ai_socktype) {
+        case SOCK_STREAM:
+            printf("stream"); break;
+        case SOCK_DGRAM:
+            printf("datagram"); break;
+        case SOCK_SEQPACKET:
+            printf("seqpacket"); break;
+        case SOCK_RAW:
+            printf("raw"); break;
+        default:
+            printf("unknown (%d)", aip->ai_socktype);
+    }
+}
+void 
+SocketTCP::print_protocol(struct addrinfo *aip)
+{
+    printf(" protocol ");
+    switch (aip->ai_protocol) {
+        case 0:
+            printf("default"); break;
+        case IPPROTO_TCP:
+            printf("TCP"); break;
+        case IPPROTO_UDP:
+            printf("UDP"); break;
+        case IPPROTO_RAW:
+            printf("raw"); break;
+        default:
+            printf("unknown (%d)", aip->ai_protocol);
+    }
+}
+
+void 
+SocketTCP::print_flags(struct addrinfo *aip)
+{
+    printf(" flags ");
+    if (aip->ai_flags == 0) {
+        printf(" 0");
+    } else {
+        if (aip->ai_flags & AI_PASSIVE)  {
+            printf(" passive");
+        } 
+        if (aip->ai_flags & AI_CANONNAME) {
+            printf(" canon");
+        } 
+        if (aip->ai_flags & AI_NUMERICHOST) {
+            printf(" numhost");
+        }
+        if (aip->ai_flags & AI_NUMERICSERV) {
+            printf(" numserv");
+        }
+        if (aip->ai_flags & AI_V4MAPPED) {
+            printf(" v4mapped");
+        }
+        if (aip->ai_flags &AI_ALL) {
+            printf(" all");
+        }
+    }
+}
+
+void 
+SocketTCP::test_getaddr(std::string str)
+{
+    struct addrinfo     *ailist, *aip;
+    struct addrinfo     hint;
+    struct sockaddr_in  *sinp;
+    const char          *addr;
+    int                 err;
+    char                abuf[INET_ADDRSTRLEN];
+
+    hint.ai_flags = AI_CANONNAME;
+    hint.ai_family = 0;
+    hint.ai_socktype = 0;
+    hint.ai_protocol = 0;
+    hint.ai_addrlen = 0;
+    hint.ai_canonname = NULL;
+    hint.ai_addr = NULL;
+    hint.ai_next = NULL;
+
+    if ((err = getaddrinfo(str.c_str(), NULL, &hint, &ailist)) != 0) {
+        perror("getaddrinfo");
+    }
+
+    for (aip = ailist; aip != NULL; aip = aip->ai_next) {
+        print_flags(aip);
+        print_family(aip);
+        print_type(aip);
+        print_protocol(aip);
+        printf("\n\thost %s", aip->ai_canonname ? aip->ai_canonname : "-");
+        if (aip->ai_family == AF_INET) {
+            sinp = (struct sockaddr_in*)aip->ai_addr;
+            addr = inet_ntop(AF_INET, &sinp->sin_addr, abuf, INET_ADDRSTRLEN);
+            printf(" address %s", addr ? addr : "unknown");
+            printf(" port %d", ntohs(sinp->sin_port));
+        }
+        printf("\n");
+    }
 }
 
 }
