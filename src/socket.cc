@@ -145,9 +145,18 @@ SocketTCP::get_addr_by_hostname(std::string hostname, std::string &addr)
     struct sockaddr_in  *sinp;
     char                abuf[INET_ADDRSTRLEN];
 
+    hint.ai_flags = AI_CANONNAME;
+    hint.ai_family = 0;
+    hint.ai_socktype = 0;
+    hint.ai_protocol = 0;
+    hint.ai_addrlen = 0;
+    hint.ai_canonname = NULL;
+    hint.ai_addr = NULL;
+    hint.ai_next = NULL;
+    
     int ret = getaddrinfo(hostname.c_str(), NULL, &hint, &ailist);
     if (ret != 0) {
-        LOG_WARN("getaddrinfo: %s", strerror(errno));
+        LOG_WARN("getaddrinfo: %s", gai_strerror(ret));
         return -1;
     }
 

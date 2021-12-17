@@ -4,7 +4,7 @@ using namespace os;
 
 int main(void)
 {
-    std::string host = "www.google.com";
+    std::string host = "fundgz.1234567.com.cn";
     SocketTCP stcp;
 
     std::string addr;
