@@ -101,7 +101,7 @@ public:
     virtual int get_errno(void) { return errno_;}
 
 
-    template<class T> static bool compare_and_swap(T &reg, T &old_value, const T &new_value)
+    template<class T> static bool compare_and_swap(T &reg, const T &old_value, const T &new_value)
     {
     #ifdef __RJF_LINUX__
         __asm__ volatile ("lock; cmpxchg %2, %3"
