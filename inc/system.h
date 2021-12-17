@@ -100,6 +100,19 @@ public:
     virtual int unlock(void);
     virtual int get_errno(void) { return errno_;}
 
+
+    template<class T> static bool compare_and_swap(T &reg, T &old_value, const T &new_value)
+    {
+    #ifdef __RJF_LINUX__
+        __asm__ volatile ("lock; cmpxchg %2, %3"
+                            : "=a" (reg), "=m" (old_value)
+                            : "r" (new_value), "m" (reg), "0" (old_value)
+                            : "cc");
+        return old_value == reg;
+    #elif __RJF_WINDOWS__
+    #endif
+    }
+
 #ifdef __RJF_LINUX__
     pthread_mutex_t* get_mutex(void) {return mutex_ptr_;}
 #endif
