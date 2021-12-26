@@ -11,6 +11,8 @@ Thread::Thread(void)
     this->set_stream_func(LOG_LEVEL_WARN, g_msg_to_stream_warn);
     this->set_stream_func(LOG_LEVEL_ERROR, g_msg_to_stream_error);
     this->set_stream_func(LOG_LEVEL_FATAL, g_msg_to_stream_fatal);
+
+    thread_id_ = (thread_id_t)this;
 }
 
 Thread::~Thread(void) 
@@ -60,7 +62,6 @@ WorkThread::WorkThread(ThreadPool *thread_pool, int idle_life)
 : idle_life_(idle_life), thread_pool_(thread_pool)
 {
     start_idle_life_ = time(NULL);
-    work_thread_id_ = (thread_id_t)this;
 #ifdef __RJF_LINUX__
     pthread_cond_init(&thread_cond_, NULL);
 #endif
@@ -104,7 +105,7 @@ WorkThread::run_handler(void)
                 task_.work_func(task_.thread_arg);
                 task_.state = THREAD_TASK_COMPLETE;
             }
-            thread_pool_->thread_move_to_idle_map(work_thread_id_);
+            thread_pool_->thread_move_to_idle_map(get_thread_id());
         }
     }
     state_ = WorkThread_EXIT;

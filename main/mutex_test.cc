@@ -12,7 +12,7 @@ int main(int argc, char** argv)
 {
     ThreadPool pool;
     ThreadPoolConfig config = pool.get_threadpool_config();
-    config.threads_num = 8;
+    config.threads_num = 2;
     pool.set_threadpool_config(config);
     
     // pool.show_threadpool_info();
@@ -57,11 +57,10 @@ void* test_thread_fun(void *arg)
     }
     
     // 会长时间阻塞
-    while (*data < 1500) {
-        // (*data) = (*data) + 1;
-        Mutex::compare_and_swap<int>(*data, *data, *data + 1);
-
-        std::cout << *data << std::endl;
-    }
+    int value = 0;
+    *data = 0;
+    bool ret = Atomic<int>::compare_and_swap(data, value, value + 1);
+    // bool ret = __sync_bool_compare_and_swap(data, value, value + 1);
+    std::cout << "ret: " << (ret?"true":"false") << " data: " << *data << " value: " << value <<std::endl;
     return nullptr;
 }
