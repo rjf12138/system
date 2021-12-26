@@ -53,6 +53,22 @@ Thread::init(void)
     return 0;
 }
 
+thread_id_t 
+Thread::current_thread_id(void)
+{
+#ifdef __RJF_LINUX__
+    return pthread_self();
+#endif
+}
+
+bool 
+Thread::compare_thread_id(const thread_id_t &lhs, const thread_id_t &rhs)
+{
+#ifdef __RJF_LINUX__
+    return !(pthread_equal(lhs, rhs) == 0);
+#endif
+}
+
 int Thread::run_handler(void) { return 0;}
 int Thread::stop_handler(void) {return 0; }
 int Thread::start_handler(void) {return 0; }

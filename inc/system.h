@@ -160,8 +160,14 @@ public:
     virtual int stop_handler(void);
     // 设置开始标识，设置完后线程可以运行
     virtual int start_handler(void);
-    // 获取线程id
+
+    // 如何处理结构体的线程id
+    // 获取当前线程类id
     thread_id_t get_thread_id(void) const {return thread_id_;}
+    // 获取当前运行的线程id
+    static thread_id_t current_thread_id(void);
+    // 比较线程id
+    static bool compare_thread_id(const thread_id_t &lhs, const thread_id_t &rhs);
 
 private:
     static void* create_func(void *arg);
