@@ -3,7 +3,8 @@
 namespace os {
 
 Thread::Thread(void)
-:is_init_(false)
+:is_init_(false),
+thread_id_(0)
 {
     this->set_stream_func(LOG_LEVEL_TRACE, g_msg_to_stream_trace);
     this->set_stream_func(LOG_LEVEL_DEBUG, g_msg_to_stream_debug);
@@ -11,8 +12,6 @@ Thread::Thread(void)
     this->set_stream_func(LOG_LEVEL_WARN, g_msg_to_stream_warn);
     this->set_stream_func(LOG_LEVEL_ERROR, g_msg_to_stream_error);
     this->set_stream_func(LOG_LEVEL_FATAL, g_msg_to_stream_fatal);
-
-    thread_id_ = (thread_id_t)this;
 }
 
 Thread::~Thread(void) 
@@ -58,14 +57,6 @@ Thread::current_thread_id(void)
 {
 #ifdef __RJF_LINUX__
     return pthread_self();
-#endif
-}
-
-bool 
-Thread::compare_thread_id(const thread_id_t &lhs, const thread_id_t &rhs)
-{
-#ifdef __RJF_LINUX__
-    return !(pthread_equal(lhs, rhs) == 0);
 #endif
 }
 
@@ -220,7 +211,7 @@ ThreadPool::run_handler(void)
 {
     mtime_t curr = Time::now();
     while (!exit_) {
-        if (Time::now() - curr > 1000) {
+        if (Time::now() - curr > 100) {
             ajust_threads_num();
             curr = Time::now();
         }

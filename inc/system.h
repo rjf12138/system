@@ -144,6 +144,7 @@ private:
     typedef pthread_t thread_id_t;
 #endif
 
+
 // 通用线程类，直接继承它，设置需要重载的函数
 class Thread : public basic::Logger {
 public:
@@ -166,8 +167,6 @@ public:
     thread_id_t get_thread_id(void) const {return thread_id_;}
     // 获取当前运行的线程id
     static thread_id_t current_thread_id(void);
-    // 比较线程id
-    static bool compare_thread_id(const thread_id_t &lhs, const thread_id_t &rhs);
 
 private:
     static void* create_func(void *arg);
