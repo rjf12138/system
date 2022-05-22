@@ -1,4 +1,7 @@
 #include "system.h"
+#include "ncurses/ncurses.h"
+#include "ncurses/menu.h"
+#include "ncurses/form.h"
 
 namespace os{
 TerminalWindow::TerminalWindow(void)
@@ -329,7 +332,7 @@ TerminalWindow::message(std::string title)
 }
 
 void 
-TerminalWindow::print_in_middle(WINDOW *win, int starty, int startx, int width, const char *string, chtype color)
+TerminalWindow::print_in_middle(void *win, int starty, int startx, int width, const char *string, uint32_t color)
 {       
     size_t length = 0;
     int x = 0, y = 0;
@@ -339,7 +342,8 @@ TerminalWindow::print_in_middle(WINDOW *win, int starty, int startx, int width, 
         win = stdscr;
     }
 
-    getyx(win, y, x);
+    WINDOW* win_ptr = reinterpret_cast<WINDOW*>(win);
+    getyx(win_ptr, y, x);
     if(startx != 0) {
         x = startx;
     }
@@ -353,9 +357,9 @@ TerminalWindow::print_in_middle(WINDOW *win, int starty, int startx, int width, 
     length = strlen(string);
     temp = static_cast<float>((width - length)/ 2);
     x = startx + static_cast<int>(temp);
-    wattron(win, color);
-    mvwprintw(win, y, x, "%s", string);
-    wattroff(win, color);
+    wattron(win_ptr, color);
+    mvwprintw(win_ptr, y, x, "%s", string);
+    wattroff(win_ptr, color);
     refresh();
 }
 

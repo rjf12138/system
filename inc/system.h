@@ -84,10 +84,6 @@ private:
 };
 
 /////////////////////////////// 终端界面 ///////////////////////////////////////////
-#include "ncurses/ncurses.h"
-#include "ncurses/menu.h"
-#include "ncurses/form.h"
-
 #define PrintChars  "~`!@#$%^&*()_-+={}[]\\|:;\"',<.>/? *-+"
 #define ProjWin_RetEmpty    ""
 #define ProjWin_InputPath   "NULL"
@@ -111,7 +107,7 @@ public:
     bool message(std::string title);
 
 private:
-    void print_in_middle(WINDOW *win, int starty, int startx, int width, const char *string, chtype color);
+    void print_in_middle(void *win, int starty, int startx, int width, const char *string, uint32_t color);
 };
 /////////////////////////////// 获取系统信息 ////////////////////////////////////////
 class SystemInfo {
