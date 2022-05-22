@@ -1,0 +1,2 @@
+https://blog.csdn.net/qq_35866736/article/details/107780833  cmake：target_** 中的 PUBLIC，PRIVATE，INTERFACE
+https://www.bookstack.cn/read/CMake-Cookbook/content-chapter7-7.8-chinese.md cmake 菜谱

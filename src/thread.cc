@@ -28,7 +28,7 @@ Thread::create_func(void* arg)
         return NULL;
     }
 
-    Thread *self = (Thread*)arg;
+    Thread *self = reinterpret_cast<Thread*>(arg);
     self->run_handler();
 
     return arg;
@@ -42,7 +42,7 @@ Thread::init(void)
 #ifdef __RJF_LINUX__
     pthread_attr_init(&attr_);
     pthread_attr_setdetachstate(&attr_, PTHREAD_CREATE_DETACHED);
-    int ret = ::pthread_create(&thread_id_, &attr_, create_func, (void*)this);
+    int ret = ::pthread_create(&thread_id_, &attr_, create_func, reinterpret_cast<void*>(this));
     if (ret != 0) {
         LOG_ERROR("pthread_create(): %s", strerror(ret));
         return -1;
@@ -219,7 +219,7 @@ ThreadPool::run_handler(void)
             Time::sleep(5);
             continue;
         }
-        thread_move_to_running_map(tasks_.size());
+        wakeup_random_thread(tasks_.size());
     }
 
     return 0;
@@ -248,7 +248,7 @@ ThreadPool::add_task(Task &task)
         return 0;
     }
 
-    if (tasks_.size() >= thread_pool_config_.max_waiting_task) {
+    if (tasks_.size() >= static_cast<int>(thread_pool_config_.max_waiting_task)) {
         LOG_INFO("The number of tasks in the cache has reached the maximum.[size: %d, max: %d]", tasks_.size(), thread_pool_config_.max_waiting_task);
         return 0;
     }
@@ -269,7 +269,7 @@ ThreadPool::add_priority_task(Task &task)
         return 0;
     }
 
-    if (priority_tasks_.size() >= thread_pool_config_.max_waiting_task) {
+    if (priority_tasks_.size() >= static_cast<int>(thread_pool_config_.max_waiting_task)) {
         LOG_INFO("The number of priority_tasks in the cache has reached the maximum.[size: %d, max: %d]", priority_tasks_.size(), thread_pool_config_.max_waiting_task);
         return 0;
     }
@@ -323,7 +323,7 @@ ThreadPool::thread_move_to_idle_map(thread_id_t thread_id)
 }
 
 int 
-ThreadPool::thread_move_to_running_map(thread_id_t thread_id)
+ThreadPool::wakeup_specify_thread(thread_id_t thread_id)
 {
     thread_mutex_.lock();
     auto iter = idle_threads_.find(thread_id);
@@ -348,8 +348,8 @@ ThreadPool::thread_move_to_running_map(thread_id_t thread_id)
     return 1;
 }
 
-int
-ThreadPool::thread_move_to_running_map(int thread_cnt)
+std::size_t
+ThreadPool::wakeup_random_thread(std::size_t thread_cnt)
 {
     thread_mutex_.lock();
     if (idle_threads_.size() <= 0) {
@@ -358,7 +358,7 @@ ThreadPool::thread_move_to_running_map(int thread_cnt)
     }
 
     thread_cnt = (idle_threads_.size() > thread_cnt ? thread_cnt:idle_threads_.size());
-    for (int i = 0; i < thread_cnt; ++i) {
+    for (std::size_t i = 0; i < thread_cnt; ++i) {
         auto iter = idle_threads_.begin();
         thread_id_t id = iter->first;
         runing_threads_[id] = iter->second;
@@ -374,20 +374,20 @@ int
 ThreadPool::ajust_threads_num(void)
 {
     thread_mutex_.lock();
-    int max_threads = idle_threads_.size() + runing_threads_.size();
+    std::size_t max_threads = idle_threads_.size() + runing_threads_.size();
     if (max_threads < thread_pool_config_.threads_num) {
-        int start_threads = thread_pool_config_.threads_num - max_threads;
-        for (int i = 0; i < start_threads; ++i) {
+        std::size_t start_threads = thread_pool_config_.threads_num - max_threads;
+        for (std::size_t i = 0; i < start_threads; ++i) {
             WorkThread *work_thread = new WorkThread(this);
             work_thread->init();
             idle_threads_[work_thread->get_thread_id()] = work_thread;
         }
     } else if (max_threads > thread_pool_config_.threads_num) {
-        int stop_threads = max_threads - thread_pool_config_.threads_num;
+        std::size_t stop_threads = max_threads - thread_pool_config_.threads_num;
         stop_threads = stop_threads > idle_threads_.size() ? idle_threads_.size() : stop_threads;
 
         auto iter = idle_threads_.begin();
-        for (int i = 0; i < stop_threads; ++i) {
+        for (std::size_t i = 0; i < stop_threads; ++i) {
             iter->second->stop_handler();
         }
     }
@@ -442,7 +442,6 @@ ThreadPool::shutdown_all_threads(void)
 
     for (auto iter = idle_threads_.begin(); iter != idle_threads_.end(); ) {
         auto stop_iter = iter++;
-        mtime_t curr = Time::now();
         stop_iter->second->stop_handler();
         
         while (stop_iter->second->get_current_state() != WorkThread_EXIT) {
@@ -468,10 +467,10 @@ ThreadPool::get_running_info(void)
     } else {
         running_info.exit_action =  "UNKNOWN_ACTION";
     }
-    running_info.running_threads_num = runing_threads_.size();
-    running_info.idle_threads_num = idle_threads_.size();
-    running_info.waiting_tasks = tasks_.size();
-    running_info.waiting_prio_tasks = priority_tasks_.size();
+    running_info.running_threads_num = static_cast<int>(runing_threads_.size());
+    running_info.idle_threads_num = static_cast<int>(idle_threads_.size());
+    running_info.waiting_tasks = static_cast<int>(tasks_.size());
+    running_info.waiting_prio_tasks = static_cast<int>(priority_tasks_.size());
 
     return running_info;
 }

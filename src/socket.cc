@@ -76,7 +76,7 @@ SocketTCP::set_reuse_addr(void)
     }
 
     int enable = 1;
-    int ret = ::setsockopt(socket_,SOL_SOCKET,SO_REUSEADDR,(void*)&enable,sizeof(enable));
+    int ret = ::setsockopt(socket_,SOL_SOCKET,SO_REUSEADDR,reinterpret_cast<void*>(&enable),sizeof(enable));
     if (ret < 0) {
         LOG_ERROR("setsockopt: %s", strerror(errno));
         return -1;
@@ -162,7 +162,7 @@ SocketTCP::get_addr_by_hostname(std::string hostname, std::string &addr)
 
     for (aip = ailist; aip != NULL; aip = aip->ai_next) {
         if (aip->ai_family == AF_INET && aip->ai_protocol == IPPROTO_TCP) {
-            sinp = (struct sockaddr_in*)aip->ai_addr;
+            sinp = reinterpret_cast<struct sockaddr_in*>(aip->ai_addr);
             addr = inet_ntop(AF_INET, &sinp->sin_addr, abuf, INET_ADDRSTRLEN);
             if (addr.length() == 0 || addr == "127.0.0.1") {
                 LOG_WARN("Cant get addr by hostname[%s]", hostname.c_str());
@@ -257,7 +257,7 @@ SocketTCP::listen(void)
         return -1;
     }
 
-    int ret = ::bind(socket_, (sockaddr*)&addr_, sizeof(addr_));
+    int ret = ::bind(socket_, reinterpret_cast<sockaddr*>(&addr_), sizeof(addr_));
     if (ret < 0) {
         LOG_ERROR("bind: %s", strerror(errno));
         this->close();
@@ -281,7 +281,7 @@ int SocketTCP::connect(void)
         return -1;
     }
 
-    int ret = ::connect(socket_, (sockaddr*)&addr_, sizeof(addr_));
+    int ret = ::connect(socket_, reinterpret_cast<sockaddr*>(&addr_), sizeof(addr_));
     if (ret < 0) {
         LOG_ERROR("connect: %s. socket: %d", strerror(errno), socket_);
         this->close();
@@ -308,8 +308,8 @@ int SocketTCP::accept(int &clisock, struct sockaddr *cliaddr, socklen_t *addrlen
 
     return 0;
 }
-// 存在问题需要修改
-int 
+
+ssize_t 
 SocketTCP::recv(ByteBuffer &buff, int flags)
 {
     if (is_enable_ == false) {
@@ -340,10 +340,10 @@ SocketTCP::recv(ByteBuffer &buff, int flags)
         }
     } while (false);
    
-    return buff.data_size();
+    return static_cast<int>(buff.data_size());
 }
 
-int 
+ssize_t 
 SocketTCP::send(ByteBuffer &buff, int flags)
 {
     if (is_enable_ == false) {
@@ -351,11 +351,13 @@ SocketTCP::send(ByteBuffer &buff, int flags)
         return -1;
     }
 
-    const ssize_t send_once_size = 8192;
+    if (buff.data_size() <= 0) {
+        return 0;
+    }
+
     ssize_t send_size = 0;
     do {
-        int ready_data_size = buff.get_cont_read_size() > send_once_size ? send_once_size : buff.get_cont_read_size();
-        int ret = ::send(socket_, buff.get_read_buffer_ptr(), buff.get_cont_read_size(), flags);
+        ssize_t ret = ::send(socket_, buff.get_read_buffer_ptr(), buff.get_cont_read_size(), flags);
         if (ret < 0) {
             // 在非阻塞模式下,send函数的过程仅仅是将数据拷贝到协议栈的缓存区而已,
             // 如果缓存区可用空间不够,则尽能力的拷贝,返回成功拷贝的大小;
@@ -485,7 +487,7 @@ SocketTCP::test_getaddr(std::string str)
         print_protocol(aip);
         printf("\n\thost %s", aip->ai_canonname ? aip->ai_canonname : "-");
         if (aip->ai_family == AF_INET) {
-            sinp = (struct sockaddr_in*)aip->ai_addr;
+            sinp = reinterpret_cast<struct sockaddr_in*>(aip->ai_addr);
             addr = inet_ntop(AF_INET, &sinp->sin_addr, abuf, INET_ADDRSTRLEN);
             printf(" address %s", addr ? addr : "unknown");
             printf(" port %d", ntohs(sinp->sin_port));

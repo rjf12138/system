@@ -187,7 +187,7 @@ File::read_from_pos(ByteBuffer &buff, size_t buf_size, off_t pos, int whence)
         return -1;
     }
 
-    int ret_size = this->read(buff, buf_size);
+    ssize_t ret_size = this->read(buff, buf_size);
     return ret_size;
 }
 
@@ -199,10 +199,14 @@ File::write(ByteBuffer &buff, size_t buf_size)
         LOG_ERROR("write: haven't open any file!");
         return 0;
     }
+
+    if (buff.data_size() <= 0) {
+        return 0;
+    }
     
     size_t remain_size = buf_size;
     do {
-        int ret = ::write(fd_, buff.get_read_buffer_ptr(), buff.get_cont_read_size());
+        ssize_t ret = ::write(fd_, buff.get_read_buffer_ptr(), buff.get_cont_read_size());
         if (ret == -1) {
             LOG_ERROR("write: %s", strerror(errno));
             return -1;
@@ -231,7 +235,7 @@ File::write_to_pos(ByteBuffer &buff, size_t buf_size ,off_t pos, int whence)
         return -1;
     }
 
-    int ret_size = this->write(buff, buf_size);
+    ssize_t ret_size = this->write(buff, buf_size);
     return ret_size;
 }
 

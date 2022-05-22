@@ -21,7 +21,7 @@
 	],
 	"LibraryDirectoryListing": {
 		"debug": [
-			
+			"ncurses"
 		],
 		"release": [
 			
@@ -30,7 +30,11 @@
 	"LibraryListing": {
 		"debug": [
 			"pthread",
-			"basicd"
+			"basicd",
+			"ncurses++_g",
+			"form_g",
+			"menu_g",
+			"panel_g"
 		],"release": [
 			
 		]

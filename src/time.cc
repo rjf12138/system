@@ -62,16 +62,18 @@ Time::sleep(uint32_t mills)
 }
 
 mtime_t 
-Time::convert_to(const std::string &ti)
+Time::convert_to(const std::string &ti, bool mills_enable, const char *fmt)
 {
-    std::size_t index = ti.find_last_of(":");
-    if (index == std::string::npos) {
-        return 0;
+    if (mills_enable == true) {
+        std::size_t index = ti.find_last_of(":");
+        if (index == std::string::npos) {
+            return -1;
+        }
     }
 
     struct tm struct_time;
     memset(&struct_time, 0, sizeof(struct_time));
-    char *ptr = strptime(ti.c_str(), "%Y-%m-%d %H:%M:%S", &struct_time);
+    char *ptr = strptime(ti.c_str(), fmt, &struct_time);
     // printf("%d-%d-%d %d:%d:%d\n", 
     //         struct_time.tm_year, 
     //         struct_time.tm_mon, 
@@ -80,13 +82,17 @@ Time::convert_to(const std::string &ti)
     //         struct_time.tm_min,
     //         struct_time.tm_sec);
     if (ptr != NULL || *ptr != '\0') {
-        uint64_t milli_time = atol(++ptr);
         time_t sec_time = mktime(&struct_time);
         if (sec_time == -1) {
-            perror("mktime");
-            return 0;
+            LOG_GLOBAL_ERROR("mktime: %s", strerror(errno));
+            return -1;
         }
-        return sec_time * 1000 + milli_time;
+        if (mills_enable == true) {
+            mtime_t milli_time = atol(++ptr);
+            return sec_time * 1000 + milli_time;
+        } else {
+            return sec_time;
+        }
     }
 
     return 0;
@@ -96,14 +102,14 @@ std::string
 Time::convert_to(const mtime_t &ti, bool mills_enable, const char *fmt)
 {
     // 获取毫秒数以及time_t精确到秒
-    uint32_t milli_time = ti % 1000;
+    mtime_t milli_time = ti % 1000;
     time_t curr_time_sec = ti / 1000;
 
     // 获取时间的结构
     struct tm* struc_time = localtime(&curr_time_sec);
     char buf[256] = {0};
     if (strftime(buf, 256, fmt, struc_time) == 0) {
-        perror("strftime");
+        LOG_GLOBAL_ERROR("mktime: %s", strerror(errno));
         return "";
     }
 
