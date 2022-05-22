@@ -225,7 +225,7 @@ SocketTCP::create_socket(std::string ip, uint16_t port)
 
     int ret = ::inet_pton(AF_INET, ip_.c_str(), &addr_.sin_addr);
     if (ret  == 0) {
-        LOG_WARN("Incorrect format of IP address： %s", ip_.c_str());
+        LOG_WARN("Incorrect format of IP address: %s", ip_.c_str());
         return -1;
     } else if (ret < 0) {
         LOG_ERROR("inet_pton: %s", strerror(errno));
@@ -360,12 +360,11 @@ SocketTCP::send(ByteBuffer &buff, int flags)
             // 在非阻塞模式下,send函数的过程仅仅是将数据拷贝到协议栈的缓存区而已,
             // 如果缓存区可用空间不够,则尽能力的拷贝,返回成功拷贝的大小;
             // 如缓存区可用空间为0,则返回-1,同时设置errno为EAGAIN.
+            LOG_ERROR("send: %s", strerror(errno));
             if (errno == EAGAIN || errno == EINTR) {
                 Time::sleep(10);
                 continue;
             }
-
-            LOG_ERROR("send: %s", strerror(errno));
             break;
         }
         send_size += ret;

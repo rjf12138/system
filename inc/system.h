@@ -29,13 +29,17 @@ extern void set_systemcall_message_output_callback(basic::InfoLevel level, basic
 //////////////////////////// 时间 //////////////////////////////////////////////////
 typedef uint64_t mtime_t; 
 typedef struct stime {
+    uint32_t year;
+    uint32_t month;
     uint32_t days;
     uint32_t hours;
     uint32_t mins;
     uint32_t secs;
 
     stime(void)
-    :days(0),
+    :year(0),
+    month(0),
+    days(0),
     hours(0),
     mins(0),
     secs(0) {}
