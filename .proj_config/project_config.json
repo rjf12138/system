@@ -21,7 +21,7 @@
 	],
 	"LibraryDirectoryListing": {
 		"debug": [
-			"ncurses"
+			"./lib/debug/ncurses"
 		],
 		"release": [
 			
@@ -34,7 +34,8 @@
 			"ncurses++_g",
 			"form_g",
 			"menu_g",
-			"panel_g"
+			"panel_g",
+			"ncurses_g"
 		],"release": [
 			
 		]

@@ -34,7 +34,7 @@ target_include_directories(system PUBLIC ./inc/)
 target_include_directories(system PRIVATE ./extern_inc/)
 
 target_link_directories(system PRIVATE ./lib/debug/)
-target_link_directories(system PRIVATE ncurses)
+target_link_directories(system PRIVATE ./lib/debug/ncurses)
 
 target_link_libraries(system PRIVATE pthread)
 target_link_libraries(system PRIVATE basicd)
@@ -42,5 +42,6 @@ target_link_libraries(system PRIVATE ncurses++_g)
 target_link_libraries(system PRIVATE form_g)
 target_link_libraries(system PRIVATE menu_g)
 target_link_libraries(system PRIVATE panel_g)
+target_link_libraries(system PRIVATE ncurses_g)
 include(src/CMakeLists.txt)
 

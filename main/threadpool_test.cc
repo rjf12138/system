@@ -23,7 +23,7 @@ int main(int argc, char** argv)
     }
 
     while (true) {
-        char ch = getchar();
+        int ch = getchar();
         if (ch == 'q') {
             break;
         }
@@ -38,7 +38,7 @@ void* test_thread_fun(void *arg)
         return nullptr;
     }
 
-    int *data = (int*)arg;
+    int *data = reinterpret_cast<int*>(arg);
     for (int i = 0; i < 10; ++i) {
         printf("%d----%d\n", *data, i);
         Time::sleep(500);

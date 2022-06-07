@@ -166,6 +166,19 @@ public:
     #elif __RJF_WINDOWS__
     #endif
     }
+    
+    static uint32_t fetch_and_add(volatile uint32_t *val, uint32_t incr)
+    {
+    #ifdef __RJF_LINUX__
+        unsigned int result = 0;
+        __asm__ volatile ("lock; xadd %0, %1"
+            : "=r" (result), "=m" (*val)
+            : "0" (incr), "m" (*val)
+            : "memory");
+        return result;
+    #elif __RJF_WINDOWS__
+    #endif
+    }
 private:
 };
 
