@@ -180,7 +180,7 @@ public:
     #endif
     }
 
-    inline unsigned int __sync_fetch_and_sub(volatile unsigned int* p, unsigned int decr)
+    inline unsigned int fetch_and_sub(volatile unsigned int* p, unsigned int decr)
     {
     #ifdef __RJF_LINUX__
         unsigned int result;
