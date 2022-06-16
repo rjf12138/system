@@ -180,7 +180,7 @@ public:
     #endif
     }
 
-    inline unsigned int fetch_and_sub(volatile unsigned int* p, unsigned int decr)
+    static unsigned int fetch_and_sub(volatile unsigned int* p, unsigned int decr)
     {
     #ifdef __RJF_LINUX__
         unsigned int result;
