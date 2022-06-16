@@ -179,6 +179,19 @@ public:
     #elif __RJF_WINDOWS__
     #endif
     }
+
+    inline unsigned int __sync_fetch_and_sub(volatile unsigned int* p, unsigned int decr)
+    {
+    #ifdef __RJF_LINUX__
+        unsigned int result;
+        __asm__ __volatile__ ("lock; xadd %0, %1"
+                :"=r"(result), "=m"(*p)
+                :"0"(-decr), "m"(*p)
+                :"memory");
+        return result;
+    #elif __RJF_WINDOWS__
+    #endif
+    }
 private:
 };
 
