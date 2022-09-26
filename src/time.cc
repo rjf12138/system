@@ -28,6 +28,12 @@ Time::now(void)
     return curr_time;
 }
 
+stime_t 
+Time::snow(void)
+{
+    return convert_to(time(NULL));
+}
+
 std::string 
 Time::format(bool mills_enable, const char *fmt)
 {
@@ -120,6 +126,24 @@ Time::convert_to(const mtime_t &ti, bool mills_enable, const char *fmt)
     }
 
     return buf;
+}
+
+stime_t 
+Time::convert_to(const time_t &ti)
+{
+    stime_t sti;
+
+    // 获取时间的结构
+    struct tm* struc_time = localtime(&ti);
+    sti.year = struc_time->tm_year + 1900;
+    sti.month = struc_time->tm_mon + 1;
+    sti.days = struc_time->tm_mday;
+    sti.hours = struc_time->tm_hour;
+    sti.mins = struc_time->tm_min;
+    sti.secs = struc_time->tm_sec;
+    sti.wday = struc_time->tm_wday == 0 ? 7 : struc_time->tm_wday;
+
+    return sti;
 }
 
 }

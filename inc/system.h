@@ -36,6 +36,7 @@ typedef struct stime {
     uint32_t hours;
     uint32_t mins;
     uint32_t secs;
+    uint32_t wday;
 
     stime(void)
     :year(0),
@@ -43,7 +44,8 @@ typedef struct stime {
     days(0),
     hours(0),
     mins(0),
-    secs(0) {}
+    secs(0),
+    wday(0) {}
 } stime_t;
 
 // 时间转换：默认格式： YY-MM-DD hh:mm:ss:ms
@@ -57,6 +59,8 @@ public:
 
     // 获取当前时间
     static mtime_t now(void);
+    // 获取当前时间
+    static stime_t snow(void);
     // 格式化当前时间
     static std::string format(bool mills_enable = true, const char *fmt = DEFAULT_TIME_FMT);
 
@@ -74,6 +78,8 @@ public:
     static mtime_t convert_to(const std::string &ti, bool mills_enable = true, const char *fmt = DEFAULT_TIME_FMT);
     // 毫秒数转成字符串
     static std::string convert_to(const mtime_t &ti, bool mills_enable = true, const char *fmt = DEFAULT_TIME_FMT);
+    // 将秒数转成结构体
+    static stime_t convert_to(const time_t &ti);
 
 private:
     Time(const Time&) = delete;
