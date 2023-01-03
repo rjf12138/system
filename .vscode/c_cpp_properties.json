@@ -7,10 +7,9 @@
                 "${workspaceFolder}/extern_inc",
                 "${workspaceFolder}/inc"
             ],
-            "compilerPath": "/usr/bin/clang-10",
+            "compilerPath": "/usr/bin/gcc",
             "cStandard": "c11",
-            "cppStandard": "c++14",
-            "intelliSenseMode": "linux-clang-x64"
+            "cppStandard": "c++14"
         }
     ],
     "version": 4

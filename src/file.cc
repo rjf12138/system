@@ -156,6 +156,10 @@ File::read(ByteBuffer &buff, size_t buf_size)
         return -1;
     }
 
+    if (this->file_size() <= 0) { // 空文件直接返回
+        return 0;
+    }
+
     buff.resize(buf_size);
     size_t remain_size = buf_size;
     do {
@@ -262,7 +266,7 @@ File::read_buf_fmt(ByteBuffer &buff, const char *fmt, ...)
 ssize_t 
 File::write_buf_fmt(ByteBuffer &buff, const char *fmt, ...)
 {
-    const int buf_size = 4096;
+    const int buf_size = 8192;
     char *tmp_buf = new  char[buf_size];
     memset(tmp_buf, 0, buf_size);
 
@@ -280,7 +284,7 @@ File::write_buf_fmt(ByteBuffer &buff, const char *fmt, ...)
 ssize_t 
 File::write_file_fmt(const char *fmt, ...)
 {
-    const int buf_size = 4096;
+    const int buf_size = 8192;
     char *tmp_buf = new  char[buf_size];
     memset(tmp_buf, 0, buf_size);
 

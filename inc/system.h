@@ -410,6 +410,61 @@ private:
     std::map<thread_id_t, WorkThread*> runing_threads_; // 运行中的线程列表
     std::map<thread_id_t, WorkThread*> idle_threads_; // 空闲的线程列表
 };
+//////////////////////////////// 目录操作 /////////////////////////////////////////////////
+enum EFileType {
+	EFileType_Unknown = -1,
+	EFileType_File,
+	EFileType_Dir,
+	EFileType_Link,
+};
+
+struct SFileType {
+	EFileType type;
+	std::string name;
+	std::string abs_path_;
+};
+
+class Directory : public basic::Logger {
+public:
+    Directory(void);
+    ~Directory(void);
+
+    // 获取程序当前运行路径
+    static std::string get_program_running_dir(void);
+    // 修改程序当前的运行路径
+	static int change_program_running_dir(std::string &new_path);
+
+    // 获取当前打开的目录路径
+	std::string get_curr_dir_path(void);
+    // 获取当前打开目录名称
+	std::string get_curr_dir_name(void);
+
+    // 打开目录
+	int open_dir(const std::string &path);
+	std::vector<SFileType> file_list(void);
+
+	std::string get_abs_path(const std::string &file_path);// 获取当前打开目录下文件的绝对路径
+
+	// is_abs == true 表示使用绝对路径, is_abs == false 表示使用当前打开目录下。
+	bool exist(const std::string &file_path, bool is_abs = false);
+	EFileType file_type(const std::string  &file_path, bool is_abs = false);
+	int create(const std::string &path, EFileType type, bool is_abs = false);
+	int remove(const std::string &path, bool is_abs = false);
+	int rename(const std::string &old_name, const std::string &new_name, bool is_abs = false);
+
+	// 拷贝、移动当前目录
+	int copy(const std::string &des_path);
+	int move(const std::string &des_path);
+
+private:
+    Directory(const Directory&) = delete;   // 禁止拷贝
+    Directory& operator=(const Directory&) = delete;
+
+private:
+    DIR* dir_;
+	std::string dir_path_;
+	bool is_open_dir_;
+};
 
 /////////////////////////////// 文件流 ////////////////////////////////////////////////////
 // 修改一下成功返回0，失败返回非0
