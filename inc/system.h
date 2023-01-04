@@ -24,6 +24,28 @@ extern void set_systemcall_message_output_callback(basic::InfoLevel level, basic
 extern int exe_shell_cmd(std::string &result, const char *format, ...);
 extern int exe_shell_cmd_to_stdin(const char *format, ...);
 
+// 通用的宏工具
+// 检查返回值，如果符合要求则退出函数、退出循环、继续循环、退出switch
+#define RETURN_FUNC_NE(x, y, ret) if ((x) != (y)) { return ret;} else {/*什么都不做*/} // 如果满足x!=y，则退出函数，返回值 ret，否则什么都不做
+#define RETURN_FUNC_EQ(x, y, ret) if ((x) == (y)) { return ret;} else {/*什么都不做*/} // 如果满足x==y，则退出函数，返回值 ret，否则什么都不做
+#define RETURN_FUNC_GT(x, y, ret) if ((x) >= (y)) { return ret;} else {/*什么都不做*/} // 如果满足x >= y，则退出函数，返回值 ret，否则什么都不做
+#define RETURN_FUNC_LT(x, y, ret) if ((x) <= (y)) { return ret;} else {/*什么都不做*/} // 如果满足x <= y，则退出函数，返回值 ret，否则什么都不做
+#define RETURN_FUNC_GR(x, y, ret) if ((x) > (y)) { return ret;} else {/*什么都不做*/}  // 如果满足x > y，则退出函数，返回值 ret，否则什么都不做
+#define RETURN_FUNC_LE(x, y, ret) if ((x) < (y)) { return ret;} else {/*什么都不做*/}  // 如果满足x < y，则退出函数，返回值 ret，否则什么都不做
+
+#define BREAK_FUNC_EQ(x, y) if ((x) == (y)) { break; } else {/*什么都不做*/} // 如果满足x==y，则退出循环，否则什么都不做
+#define BREAK_FUNC_GT(x, y) if ((x) >= (y)) { break; } else {/*什么都不做*/} // 如果满足x >= y，则退出循环，否则什么都不做
+#define BREAK_FUNC_LT(x, y) if ((x) <= (y)) { break; } else {/*什么都不做*/} // 如果满足x <= y，则退出循环，否则什么都不做
+#define BREAK_FUNC_GR(x, y) if ((x) > (y)) { break; } else {/*什么都不做*/} // 如果满足x > y，则退出循环，否则什么都不做
+#define BREAK_FUNC_LE(x, y) if ((x) < (y)) { break; } else {/*什么都不做*/} // 如果满足x < y，则退出循环，否则什么都不做
+
+#define CONTINUE_FUNC_EQ(x, y) if ((x) == (y)) { continue; } else {/*什么都不做*/}  // 如果满足x==y，则继续循环，否则什么都不做
+#define CONTINUE_FUNC_GT(x, y) if ((x) >= (y)) { continue; } else {/*什么都不做*/}  // 如果满足x >= y，则继续循环，否则什么都不做
+#define CONTINUE_FUNC_LT(x, y) if ((x) <= (y)) { continue; } else {/*什么都不做*/}  // 如果满足x <= y，则继续循环，否则什么都不做
+#define CONTINUE_FUNC_GR(x, y) if ((x) > (y)) { continue; } else {/*什么都不做*/}  // 如果满足x > y，则继续循环，否则什么都不做
+#define CONTINUE_FUNC_LE(x, y) if ((x) < (y)) { continue; } else {/*什么都不做*/}  // 如果满足x < y，则继续循环，否则什么都不做
+//
+
 /*
 * 所有的类成员函数成功了返回0， 失败返回非0值
 */
@@ -424,6 +446,8 @@ struct SFileType {
 	std::string abs_path_;
 };
 
+#define DEFAULT_DIR_RIGHT  (S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH)
+
 class Directory : public basic::Logger {
 public:
     Directory(void);
@@ -446,10 +470,15 @@ public:
 	std::string get_abs_path(const std::string &file_path);// 获取当前打开目录下文件的绝对路径
 
 	// is_abs == true 表示使用绝对路径, is_abs == false 表示使用当前打开目录下。
+    // 指定路径下文件/目录是否存在
 	bool exist(const std::string &file_path, bool is_abs = false);
+    // 指定路径文件的类型
 	EFileType file_type(const std::string  &file_path, bool is_abs = false);
-	int create(const std::string &path, EFileType type, bool is_abs = false);
+    // 创建文件或者是目录
+	int create(const std::string &path, EFileType type, uint mode = DEFAULT_DIR_RIGHT, bool is_abs = false);
+    // 删除文件或目录
 	int remove(const std::string &path, bool is_abs = false);
+    // 重命名文件或目录
 	int rename(const std::string &old_name, const std::string &new_name, bool is_abs = false);
 
 	// 拷贝、移动当前目录
