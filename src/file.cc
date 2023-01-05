@@ -297,4 +297,29 @@ File::write_file_fmt(const char *fmt, ...)
 
 }
 
+ssize_t 
+File::copy(File &file)
+{
+    if (!file.file_open_flag_ || !this->file_open_flag_) {
+        LOG_ERROR("copy: haven't open any file!");
+        return -1;
+    }
+
+    this->clear_file();
+    basic::ByteBuffer buffer;
+    do
+    {
+        ssize_t size = file.read(buffer, 8192);
+        if (size <= 0) {
+            break;
+        }
+        this->write(buffer, buffer.data_size());
+        buffer.clear();
+    } while (true);
+
+    fchmod(fd_, file.file_info_.st_mode);
+
+    return file.file_size();
+}
+
 }

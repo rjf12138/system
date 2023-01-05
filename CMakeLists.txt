@@ -17,8 +17,8 @@ set(CXX_FLAGS
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 
 # 设置生成文件输出路径
-set(LIBRARY_OUTPUT_PATH, ./output/debug/lib)
-add_library(system STATIC "")
+set(EXECUTABLE_OUTPUT_PATH, ./output/debug/bin)
+add_executable(system ./main/directory_test.cc)
 
 target_include_directories(system PUBLIC ./inc/)
 target_include_directories(system PRIVATE ./extern_inc/)

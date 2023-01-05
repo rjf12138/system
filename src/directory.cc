@@ -29,7 +29,7 @@ Directory::change_program_running_dir(std::string &new_path)
 {
 	int ret = chdir(new_path.c_str());
 	if (ret == -1) {
-		printf("chdir: %s\n", strerror(errno));
+		LOG_GLOBAL_ERROR("chdir: %s", strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -39,7 +39,7 @@ std::string
 Directory::get_curr_dir_path(void)
 {
 	if (dir_ == nullptr) {
-		printf("Current not open any dir!\n");
+		LOG_ERROR("Current not open any dir!\n");
 		return "";
 	}
 	return dir_path_;
@@ -49,7 +49,7 @@ std::string
 Directory::get_curr_dir_name(void)
 {
 	if (dir_ == nullptr) {
-		printf("Current not open any dir!\n");
+		LOG_ERROR("Current not open any dir!\n");
 		return "";
 	}
 
@@ -59,7 +59,7 @@ Directory::get_curr_dir_name(void)
 int 
 Directory::open_dir(const std::string &path)
 {
-	if (file_type(path) != EFileType_Dir) {
+	if (file_type(path, true) != EFileType_Dir) {
 		LOG_ERROR("Not a directory: %s", path.c_str());
 		return -1;
 	}
@@ -87,12 +87,12 @@ Directory::open_dir(const std::string &path)
 }
 
 std::vector<SFileType> 
-Directory::file_list(void)
+Directory::file_list(bool ret_default_dir)
 {
 	SFileType file;
 	std::vector<SFileType> files;
 	if (dir_ == nullptr) {
-		printf("Current not open any dir!\n");
+		LOG_ERROR("Current not open any dir!\n");
 		return files;
 	}
 
@@ -105,6 +105,11 @@ Directory::file_list(void)
 			file.name = dir_ptr->d_name;
 			file.type = EFileType_Link;
 		} else if (dir_ptr->d_type == 4) { // 目录文件
+			if (ret_default_dir == false) {
+				if (std::string(".") == dir_ptr->d_name || std::string("..") == dir_ptr->d_name) {
+					continue;
+				}
+			}
 			file.name = dir_ptr->d_name;
 			file.type = EFileType_Dir;
 		}
@@ -119,7 +124,7 @@ std::string
 Directory::get_abs_path(const std::string &file_name)
 {
 	if (dir_ == nullptr) {
-		printf("Current not open any dir!\n");
+		LOG_ERROR("Current not open any dir!");
 		return "";
 	}
 	return dir_path_ + "/" + file_name;
@@ -144,7 +149,7 @@ Directory::file_type(const std::string  &file_path, bool is_abs)
 	struct stat file_info;
     int ret = stat(abs_path.c_str(), &file_info);
     if (ret == -1) {
-		printf("stat: %s\n", strerror(errno));
+		LOG_ERROR("stat: %s", strerror(errno));
 		return EFileType_Unknown;
 	}
 
@@ -163,7 +168,7 @@ Directory::create(const std::string &path, EFileType type, uint mode, bool is_ab
 {
 	std::string abs_path = path;
 	if (is_abs == false && dir_ == nullptr) {
-		LOG_ERROR("Current not open any dir!\n");
+		LOG_ERROR("Current not open any dir!");
 		return -1;
 	} else if (is_abs == false && dir_ != nullptr) {
 		abs_path = get_abs_path(path);
@@ -195,21 +200,21 @@ Directory::remove(const std::string &path, bool is_abs)
 {
 	std::string abs_path = path;
 	if (is_abs == false && dir_ == nullptr) {
-		printf("Current not open any dir!\n");
+		LOG_ERROR("Current not open any dir!\n");
 		return -1;
 	} else if (is_abs == false && dir_ != nullptr) {
 		abs_path = get_abs_path(path);
 	}
 
-	if (exist(abs_path) == false) {
+	if (exist(abs_path, is_abs) == false) {
 		return 0;
 	}
 
-	if (file_type(abs_path.c_str()) == EFileType_File || file_type(abs_path.c_str()) == EFileType_Link) {
+	if (file_type(abs_path.c_str(), is_abs) == EFileType_File || file_type(abs_path.c_str(), is_abs) == EFileType_Link) {
 		if (::remove(abs_path.c_str()) < 0) { // 系统调用删除文件
 			return -1;
 		}
-	} else if (file_type(abs_path.c_str()) == EFileType_Dir) {
+	} else if (file_type(abs_path.c_str(), is_abs) == EFileType_Dir) {
 		Directory dir;
 		int ret = dir.open_dir(abs_path);
 		if (ret < 0) {
@@ -282,17 +287,18 @@ Directory::copy(const std::string &des_path)
 	while ((dir_ptr = readdir(dir_)) != nullptr) {
 		std::string sub_dir_dest_path = des_abs_path + dir_ptr->d_name;
 		if (dir_ptr->d_type == 8 || dir_ptr->d_type == 10) { // 普通文件 和 符号链接
-			
+			File src, dest;
+			std::string src_file_path = dir_path_ + "/" + dir_ptr->d_name;
+			CONTINUE_FUNC_EQ(src.open(src_file_path), -1);
+			std::string dest_file_path = dir_path_ + "/" + dir_ptr->d_name;
+			CONTINUE_FUNC_EQ(dest.open(dest_file_path), -1);
+			CONTINUE_FUNC_EQ(dest.copy(src), -1);
 		} else if (dir_ptr->d_type == 4) { // 目录文件
 			Directory sub_dir;
 			CONTINUE_FUNC_EQ(sub_dir.copy(sub_dir_dest_path), -1);
 		}
 	}
-}
 
-int 
-Directory::move(const std::string &des_path)
-{
 	return 0;
 }
 

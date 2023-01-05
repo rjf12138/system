@@ -15,7 +15,7 @@
 	"ExportFile": [
 		"gtest"
 	],
-	"GenerateFileType": "static_lib",
+	"GenerateFileType": "exe",
 	"HeaderFileDirectoryListing": [
 		
 	],
@@ -40,7 +40,7 @@
 			
 		]
 	},
-	"MainFileName": "threadpool_test.cc",
+	"MainFileName": "directory_test.cc",
 	"Name": "system",
 	"Path": "/home/ruanjian/workspace/project_v/system",
 	"ProgramRunArgs": "",

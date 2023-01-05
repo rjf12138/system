@@ -447,7 +447,7 @@ struct SFileType {
 };
 
 #define DEFAULT_DIR_RIGHT  (S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH)
-
+// 存在问题，要不统一使用绝对路径
 class Directory : public basic::Logger {
 public:
     Directory(void);
@@ -465,7 +465,7 @@ public:
 
     // 打开目录
 	int open_dir(const std::string &path);
-	std::vector<SFileType> file_list(void);
+	std::vector<SFileType> file_list(bool ret_default_dir = false); // 是否返回 . 和 .. 目录
 
 	std::string get_abs_path(const std::string &file_path);// 获取当前打开目录下文件的绝对路径
 
@@ -545,6 +545,8 @@ public:
     // 格式化写到文件中
     ssize_t write_file_fmt(const char *fmt, ...);
 
+    // 从file中拷贝文件数据到当前文件中
+    ssize_t copy(File &file);
 private:
     File(const File&) = delete;
     File& operator=(const File&) = delete;
