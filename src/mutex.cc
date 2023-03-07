@@ -23,7 +23,6 @@ Mutex::Mutex(void)
 Mutex::~Mutex(void)
 {
 #ifdef __RJF_LINUX__
-    this->unlock();
     int ret = ::pthread_mutex_destroy(mutex_ptr_);
     if (ret != 0) {
         LOG_ERROR("pthread_mutex_destroy(): %s", strerror(ret));
