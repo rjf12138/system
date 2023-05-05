@@ -1,4 +1,5 @@
 #include "system.h"
+#include "basic/process_control.h"
 
 namespace os {
 Directory::Directory(void)
