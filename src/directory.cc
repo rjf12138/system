@@ -134,6 +134,13 @@ Directory::get_abs_path(const std::string &file_name)
 bool 
 Directory::exist(const std::string &file_path, bool is_abs)
 {
+	std::string abs_path = file_path;
+	if (is_abs == false && dir_ == nullptr) {
+		return EFileType_Unknown;
+	} else if (is_abs == false && dir_ != nullptr) {
+		abs_path = get_abs_path(file_path);
+	}
+	
 	return access(file_path.c_str(), F_OK) == 0 ? true : false;
 }
 
