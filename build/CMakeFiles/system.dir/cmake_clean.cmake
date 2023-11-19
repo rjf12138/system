@@ -1,0 +1,41 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/system.dir/imgui/imgui.cc.o"
+  "CMakeFiles/system.dir/imgui/imgui.cc.o.d"
+  "CMakeFiles/system.dir/imgui/imgui_draw.cc.o"
+  "CMakeFiles/system.dir/imgui/imgui_draw.cc.o.d"
+  "CMakeFiles/system.dir/imgui/imgui_impl_opengl3.cc.o"
+  "CMakeFiles/system.dir/imgui/imgui_impl_opengl3.cc.o.d"
+  "CMakeFiles/system.dir/imgui/imgui_impl_sdl2.cc.o"
+  "CMakeFiles/system.dir/imgui/imgui_impl_sdl2.cc.o.d"
+  "CMakeFiles/system.dir/imgui/imgui_tables.cc.o"
+  "CMakeFiles/system.dir/imgui/imgui_tables.cc.o.d"
+  "CMakeFiles/system.dir/imgui/imgui_widgets.cc.o"
+  "CMakeFiles/system.dir/imgui/imgui_widgets.cc.o.d"
+  "CMakeFiles/system.dir/main/sdl2_opengl3.cc.o"
+  "CMakeFiles/system.dir/main/sdl2_opengl3.cc.o.d"
+  "CMakeFiles/system.dir/src/directory.cc.o"
+  "CMakeFiles/system.dir/src/directory.cc.o.d"
+  "CMakeFiles/system.dir/src/file.cc.o"
+  "CMakeFiles/system.dir/src/file.cc.o.d"
+  "CMakeFiles/system.dir/src/mutex.cc.o"
+  "CMakeFiles/system.dir/src/mutex.cc.o.d"
+  "CMakeFiles/system.dir/src/socket.cc.o"
+  "CMakeFiles/system.dir/src/socket.cc.o.d"
+  "CMakeFiles/system.dir/src/system.cc.o"
+  "CMakeFiles/system.dir/src/system.cc.o.d"
+  "CMakeFiles/system.dir/src/systeminfo.cc.o"
+  "CMakeFiles/system.dir/src/systeminfo.cc.o.d"
+  "CMakeFiles/system.dir/src/terminal_window.cc.o"
+  "CMakeFiles/system.dir/src/terminal_window.cc.o.d"
+  "CMakeFiles/system.dir/src/thread.cc.o"
+  "CMakeFiles/system.dir/src/thread.cc.o.d"
+  "CMakeFiles/system.dir/src/time.cc.o"
+  "CMakeFiles/system.dir/src/time.cc.o.d"
+  "system"
+  "system.pdb"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/system.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

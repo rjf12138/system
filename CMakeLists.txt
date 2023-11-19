@@ -17,8 +17,8 @@ set(CXX_FLAGS
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 
 # 设置生成文件输出路径
-set(LIBRARY_OUTPUT_PATH, ./output/debug/lib)
-add_library(system STATIC "")
+set(EXECUTABLE_OUTPUT_PATH, ./output/debug/bin)
+add_executable(system ./main/sdl2_opengl3.cc)
 
 target_include_directories(system PUBLIC ./inc/)
 target_include_directories(system PRIVATE ./extern_inc/)
@@ -33,5 +33,8 @@ target_link_libraries(system PRIVATE form_g)
 target_link_libraries(system PRIVATE menu_g)
 target_link_libraries(system PRIVATE panel_g)
 target_link_libraries(system PRIVATE ncurses_g)
+target_link_libraries(system PRIVATE glut)
+target_link_libraries(system PRIVATE SDL2)
 include(src/CMakeLists.txt)
+include(imgui/CMakeLists.txt)
 
