@@ -136,12 +136,12 @@ Directory::exist(const std::string &file_path, bool is_abs)
 {
 	std::string abs_path = file_path;
 	if (is_abs == false && dir_ == nullptr) {
-		return EFileType_Unknown;
+		return false;
 	} else if (is_abs == false && dir_ != nullptr) {
 		abs_path = get_abs_path(file_path);
 	}
 	
-	return access(file_path.c_str(), F_OK) == 0 ? true : false;
+	return access(abs_path.c_str(), F_OK) == 0 ? true : false;
 }
 
 EFileType 
@@ -176,7 +176,7 @@ Directory::create(const std::string &path, EFileType type, uint mode, bool is_ab
 {
 	std::string abs_path = path;
 	if (is_abs == false && dir_ == nullptr) {
-		LOG_ERROR("Current not open any dir!");
+		LOG_ERROR("Current not open any dir![abs: %s]", abs_path.c_str());
 		return -1;
 	} else if (is_abs == false && dir_ != nullptr) {
 		abs_path = get_abs_path(path);
@@ -187,7 +187,7 @@ Directory::create(const std::string &path, EFileType type, uint mode, bool is_ab
 		case EFileType_Dir: {
 			int ret = mkdir(abs_path.c_str(), mode);
 			if (ret == -1) {
-				LOG_ERROR("mkdir: %s\n", strerror(errno));
+				LOG_ERROR("mkdir[%s]: %s\n", abs_path.c_str(), strerror(errno));
 				return -1;
 			} 
 		} break;
@@ -196,7 +196,7 @@ Directory::create(const std::string &path, EFileType type, uint mode, bool is_ab
 			file.open(abs_path, mode);
 		} break;
 		default:
-			LOG_ERROR("Creating this type of file is not supported\n");
+			LOG_ERROR("Creating this type of file is not supported[type: %d]\n", type);
 			return -1;
 	}
 

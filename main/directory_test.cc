@@ -1,7 +1,10 @@
 #include "system.h"
+#include "basic/process_control.h"
 
 int main(void)
 {
+    os::Directory dir_1;
+    dir_1.open_dir("./");
     os::Directory dir;
     if (dir.exist("./test", true) == true) {
         dir.remove("./test", true);

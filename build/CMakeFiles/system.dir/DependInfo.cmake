@@ -8,13 +8,6 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/ruanjian/workspace/project_v/system/imgui/imgui.cc" "CMakeFiles/system.dir/imgui/imgui.cc.o" "gcc" "CMakeFiles/system.dir/imgui/imgui.cc.o.d"
-  "/home/ruanjian/workspace/project_v/system/imgui/imgui_draw.cc" "CMakeFiles/system.dir/imgui/imgui_draw.cc.o" "gcc" "CMakeFiles/system.dir/imgui/imgui_draw.cc.o.d"
-  "/home/ruanjian/workspace/project_v/system/imgui/imgui_impl_opengl3.cc" "CMakeFiles/system.dir/imgui/imgui_impl_opengl3.cc.o" "gcc" "CMakeFiles/system.dir/imgui/imgui_impl_opengl3.cc.o.d"
-  "/home/ruanjian/workspace/project_v/system/imgui/imgui_impl_sdl2.cc" "CMakeFiles/system.dir/imgui/imgui_impl_sdl2.cc.o" "gcc" "CMakeFiles/system.dir/imgui/imgui_impl_sdl2.cc.o.d"
-  "/home/ruanjian/workspace/project_v/system/imgui/imgui_tables.cc" "CMakeFiles/system.dir/imgui/imgui_tables.cc.o" "gcc" "CMakeFiles/system.dir/imgui/imgui_tables.cc.o.d"
-  "/home/ruanjian/workspace/project_v/system/imgui/imgui_widgets.cc" "CMakeFiles/system.dir/imgui/imgui_widgets.cc.o" "gcc" "CMakeFiles/system.dir/imgui/imgui_widgets.cc.o.d"
-  "/home/ruanjian/workspace/project_v/system/main/sdl2_opengl3.cc" "CMakeFiles/system.dir/main/sdl2_opengl3.cc.o" "gcc" "CMakeFiles/system.dir/main/sdl2_opengl3.cc.o.d"
   "/home/ruanjian/workspace/project_v/system/src/directory.cc" "CMakeFiles/system.dir/src/directory.cc.o" "gcc" "CMakeFiles/system.dir/src/directory.cc.o.d"
   "/home/ruanjian/workspace/project_v/system/src/file.cc" "CMakeFiles/system.dir/src/file.cc.o" "gcc" "CMakeFiles/system.dir/src/file.cc.o.d"
   "/home/ruanjian/workspace/project_v/system/src/mutex.cc" "CMakeFiles/system.dir/src/mutex.cc.o" "gcc" "CMakeFiles/system.dir/src/mutex.cc.o.d"

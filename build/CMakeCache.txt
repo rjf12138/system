@@ -215,6 +215,9 @@ system_BINARY_DIR:STATIC=/home/ruanjian/workspace/project_v/system/build
 //Value Computed by CMake
 system_IS_TOP_LEVEL:STATIC=ON
 
+//Dependencies for the target
+system_LIB_DEPENDS:STATIC=general;pthread;general;basicd;general;ncurses++_g;general;form_g;general;menu_g;general;panel_g;general;ncurses_g;
+
 //Value Computed by CMake
 system_SOURCE_DIR:STATIC=/home/ruanjian/workspace/project_v/system
 

@@ -15,7 +15,7 @@
 	"ExportFile": [
 		"gtest"
 	],
-	"GenerateFileType": "exe",
+	"GenerateFileType": "static_lib",
 	"HeaderFileDirectoryListing": [
 		
 	],
@@ -35,19 +35,17 @@
 			"form_g",
 			"menu_g",
 			"panel_g",
-			"ncurses_g",
-			"glut",
-			"SDL2"
+			"ncurses_g"
 		],"release": [
 			
 		]
 	},
-	"MainFileName": "sdl2_opengl3.cc",
+	"MainFileName": "directory_test.cc",
 	"Name": "system",
 	"Path": "/home/ruanjian/workspace/project_v/system",
 	"ProgramRunArgs": "",
 	"SourceFileDirectoryListing": [
-		"src",
-		"imgui"
-	],"UUID": "f78334bd-68a1-4808-bd91-3900e0c74e08"
+		"src"
+	],
+	"UUID": "f78334bd-68a1-4808-bd91-3900e0c74e08"
 }

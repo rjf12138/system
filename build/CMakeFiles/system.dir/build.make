@@ -69,24 +69,10 @@ include CMakeFiles/system.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/system.dir/flags.make
 
-CMakeFiles/system.dir/main/sdl2_opengl3.cc.o: CMakeFiles/system.dir/flags.make
-CMakeFiles/system.dir/main/sdl2_opengl3.cc.o: ../main/sdl2_opengl3.cc
-CMakeFiles/system.dir/main/sdl2_opengl3.cc.o: CMakeFiles/system.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/system.dir/main/sdl2_opengl3.cc.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/system.dir/main/sdl2_opengl3.cc.o -MF CMakeFiles/system.dir/main/sdl2_opengl3.cc.o.d -o CMakeFiles/system.dir/main/sdl2_opengl3.cc.o -c /home/ruanjian/workspace/project_v/system/main/sdl2_opengl3.cc
-
-CMakeFiles/system.dir/main/sdl2_opengl3.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/system.dir/main/sdl2_opengl3.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ruanjian/workspace/project_v/system/main/sdl2_opengl3.cc > CMakeFiles/system.dir/main/sdl2_opengl3.cc.i
-
-CMakeFiles/system.dir/main/sdl2_opengl3.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/system.dir/main/sdl2_opengl3.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ruanjian/workspace/project_v/system/main/sdl2_opengl3.cc -o CMakeFiles/system.dir/main/sdl2_opengl3.cc.s
-
 CMakeFiles/system.dir/src/system.cc.o: CMakeFiles/system.dir/flags.make
 CMakeFiles/system.dir/src/system.cc.o: ../src/system.cc
 CMakeFiles/system.dir/src/system.cc.o: CMakeFiles/system.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/system.dir/src/system.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/system.dir/src/system.cc.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/system.dir/src/system.cc.o -MF CMakeFiles/system.dir/src/system.cc.o.d -o CMakeFiles/system.dir/src/system.cc.o -c /home/ruanjian/workspace/project_v/system/src/system.cc
 
 CMakeFiles/system.dir/src/system.cc.i: cmake_force
@@ -100,7 +86,7 @@ CMakeFiles/system.dir/src/system.cc.s: cmake_force
 CMakeFiles/system.dir/src/systeminfo.cc.o: CMakeFiles/system.dir/flags.make
 CMakeFiles/system.dir/src/systeminfo.cc.o: ../src/systeminfo.cc
 CMakeFiles/system.dir/src/systeminfo.cc.o: CMakeFiles/system.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/system.dir/src/systeminfo.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/system.dir/src/systeminfo.cc.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/system.dir/src/systeminfo.cc.o -MF CMakeFiles/system.dir/src/systeminfo.cc.o.d -o CMakeFiles/system.dir/src/systeminfo.cc.o -c /home/ruanjian/workspace/project_v/system/src/systeminfo.cc
 
 CMakeFiles/system.dir/src/systeminfo.cc.i: cmake_force
@@ -114,7 +100,7 @@ CMakeFiles/system.dir/src/systeminfo.cc.s: cmake_force
 CMakeFiles/system.dir/src/file.cc.o: CMakeFiles/system.dir/flags.make
 CMakeFiles/system.dir/src/file.cc.o: ../src/file.cc
 CMakeFiles/system.dir/src/file.cc.o: CMakeFiles/system.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/system.dir/src/file.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/system.dir/src/file.cc.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/system.dir/src/file.cc.o -MF CMakeFiles/system.dir/src/file.cc.o.d -o CMakeFiles/system.dir/src/file.cc.o -c /home/ruanjian/workspace/project_v/system/src/file.cc
 
 CMakeFiles/system.dir/src/file.cc.i: cmake_force
@@ -128,7 +114,7 @@ CMakeFiles/system.dir/src/file.cc.s: cmake_force
 CMakeFiles/system.dir/src/mutex.cc.o: CMakeFiles/system.dir/flags.make
 CMakeFiles/system.dir/src/mutex.cc.o: ../src/mutex.cc
 CMakeFiles/system.dir/src/mutex.cc.o: CMakeFiles/system.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/system.dir/src/mutex.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/system.dir/src/mutex.cc.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/system.dir/src/mutex.cc.o -MF CMakeFiles/system.dir/src/mutex.cc.o.d -o CMakeFiles/system.dir/src/mutex.cc.o -c /home/ruanjian/workspace/project_v/system/src/mutex.cc
 
 CMakeFiles/system.dir/src/mutex.cc.i: cmake_force
@@ -142,7 +128,7 @@ CMakeFiles/system.dir/src/mutex.cc.s: cmake_force
 CMakeFiles/system.dir/src/time.cc.o: CMakeFiles/system.dir/flags.make
 CMakeFiles/system.dir/src/time.cc.o: ../src/time.cc
 CMakeFiles/system.dir/src/time.cc.o: CMakeFiles/system.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/system.dir/src/time.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/system.dir/src/time.cc.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/system.dir/src/time.cc.o -MF CMakeFiles/system.dir/src/time.cc.o.d -o CMakeFiles/system.dir/src/time.cc.o -c /home/ruanjian/workspace/project_v/system/src/time.cc
 
 CMakeFiles/system.dir/src/time.cc.i: cmake_force
@@ -156,7 +142,7 @@ CMakeFiles/system.dir/src/time.cc.s: cmake_force
 CMakeFiles/system.dir/src/directory.cc.o: CMakeFiles/system.dir/flags.make
 CMakeFiles/system.dir/src/directory.cc.o: ../src/directory.cc
 CMakeFiles/system.dir/src/directory.cc.o: CMakeFiles/system.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/system.dir/src/directory.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/system.dir/src/directory.cc.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/system.dir/src/directory.cc.o -MF CMakeFiles/system.dir/src/directory.cc.o.d -o CMakeFiles/system.dir/src/directory.cc.o -c /home/ruanjian/workspace/project_v/system/src/directory.cc
 
 CMakeFiles/system.dir/src/directory.cc.i: cmake_force
@@ -170,7 +156,7 @@ CMakeFiles/system.dir/src/directory.cc.s: cmake_force
 CMakeFiles/system.dir/src/thread.cc.o: CMakeFiles/system.dir/flags.make
 CMakeFiles/system.dir/src/thread.cc.o: ../src/thread.cc
 CMakeFiles/system.dir/src/thread.cc.o: CMakeFiles/system.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/system.dir/src/thread.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/system.dir/src/thread.cc.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/system.dir/src/thread.cc.o -MF CMakeFiles/system.dir/src/thread.cc.o.d -o CMakeFiles/system.dir/src/thread.cc.o -c /home/ruanjian/workspace/project_v/system/src/thread.cc
 
 CMakeFiles/system.dir/src/thread.cc.i: cmake_force
@@ -184,7 +170,7 @@ CMakeFiles/system.dir/src/thread.cc.s: cmake_force
 CMakeFiles/system.dir/src/socket.cc.o: CMakeFiles/system.dir/flags.make
 CMakeFiles/system.dir/src/socket.cc.o: ../src/socket.cc
 CMakeFiles/system.dir/src/socket.cc.o: CMakeFiles/system.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/system.dir/src/socket.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/system.dir/src/socket.cc.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/system.dir/src/socket.cc.o -MF CMakeFiles/system.dir/src/socket.cc.o.d -o CMakeFiles/system.dir/src/socket.cc.o -c /home/ruanjian/workspace/project_v/system/src/socket.cc
 
 CMakeFiles/system.dir/src/socket.cc.i: cmake_force
@@ -198,7 +184,7 @@ CMakeFiles/system.dir/src/socket.cc.s: cmake_force
 CMakeFiles/system.dir/src/terminal_window.cc.o: CMakeFiles/system.dir/flags.make
 CMakeFiles/system.dir/src/terminal_window.cc.o: ../src/terminal_window.cc
 CMakeFiles/system.dir/src/terminal_window.cc.o: CMakeFiles/system.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/system.dir/src/terminal_window.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/system.dir/src/terminal_window.cc.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/system.dir/src/terminal_window.cc.o -MF CMakeFiles/system.dir/src/terminal_window.cc.o.d -o CMakeFiles/system.dir/src/terminal_window.cc.o -c /home/ruanjian/workspace/project_v/system/src/terminal_window.cc
 
 CMakeFiles/system.dir/src/terminal_window.cc.i: cmake_force
@@ -209,93 +195,8 @@ CMakeFiles/system.dir/src/terminal_window.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/system.dir/src/terminal_window.cc.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ruanjian/workspace/project_v/system/src/terminal_window.cc -o CMakeFiles/system.dir/src/terminal_window.cc.s
 
-CMakeFiles/system.dir/imgui/imgui_tables.cc.o: CMakeFiles/system.dir/flags.make
-CMakeFiles/system.dir/imgui/imgui_tables.cc.o: ../imgui/imgui_tables.cc
-CMakeFiles/system.dir/imgui/imgui_tables.cc.o: CMakeFiles/system.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/system.dir/imgui/imgui_tables.cc.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/system.dir/imgui/imgui_tables.cc.o -MF CMakeFiles/system.dir/imgui/imgui_tables.cc.o.d -o CMakeFiles/system.dir/imgui/imgui_tables.cc.o -c /home/ruanjian/workspace/project_v/system/imgui/imgui_tables.cc
-
-CMakeFiles/system.dir/imgui/imgui_tables.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/system.dir/imgui/imgui_tables.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ruanjian/workspace/project_v/system/imgui/imgui_tables.cc > CMakeFiles/system.dir/imgui/imgui_tables.cc.i
-
-CMakeFiles/system.dir/imgui/imgui_tables.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/system.dir/imgui/imgui_tables.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ruanjian/workspace/project_v/system/imgui/imgui_tables.cc -o CMakeFiles/system.dir/imgui/imgui_tables.cc.s
-
-CMakeFiles/system.dir/imgui/imgui.cc.o: CMakeFiles/system.dir/flags.make
-CMakeFiles/system.dir/imgui/imgui.cc.o: ../imgui/imgui.cc
-CMakeFiles/system.dir/imgui/imgui.cc.o: CMakeFiles/system.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/system.dir/imgui/imgui.cc.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/system.dir/imgui/imgui.cc.o -MF CMakeFiles/system.dir/imgui/imgui.cc.o.d -o CMakeFiles/system.dir/imgui/imgui.cc.o -c /home/ruanjian/workspace/project_v/system/imgui/imgui.cc
-
-CMakeFiles/system.dir/imgui/imgui.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/system.dir/imgui/imgui.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ruanjian/workspace/project_v/system/imgui/imgui.cc > CMakeFiles/system.dir/imgui/imgui.cc.i
-
-CMakeFiles/system.dir/imgui/imgui.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/system.dir/imgui/imgui.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ruanjian/workspace/project_v/system/imgui/imgui.cc -o CMakeFiles/system.dir/imgui/imgui.cc.s
-
-CMakeFiles/system.dir/imgui/imgui_impl_sdl2.cc.o: CMakeFiles/system.dir/flags.make
-CMakeFiles/system.dir/imgui/imgui_impl_sdl2.cc.o: ../imgui/imgui_impl_sdl2.cc
-CMakeFiles/system.dir/imgui/imgui_impl_sdl2.cc.o: CMakeFiles/system.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/system.dir/imgui/imgui_impl_sdl2.cc.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/system.dir/imgui/imgui_impl_sdl2.cc.o -MF CMakeFiles/system.dir/imgui/imgui_impl_sdl2.cc.o.d -o CMakeFiles/system.dir/imgui/imgui_impl_sdl2.cc.o -c /home/ruanjian/workspace/project_v/system/imgui/imgui_impl_sdl2.cc
-
-CMakeFiles/system.dir/imgui/imgui_impl_sdl2.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/system.dir/imgui/imgui_impl_sdl2.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ruanjian/workspace/project_v/system/imgui/imgui_impl_sdl2.cc > CMakeFiles/system.dir/imgui/imgui_impl_sdl2.cc.i
-
-CMakeFiles/system.dir/imgui/imgui_impl_sdl2.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/system.dir/imgui/imgui_impl_sdl2.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ruanjian/workspace/project_v/system/imgui/imgui_impl_sdl2.cc -o CMakeFiles/system.dir/imgui/imgui_impl_sdl2.cc.s
-
-CMakeFiles/system.dir/imgui/imgui_impl_opengl3.cc.o: CMakeFiles/system.dir/flags.make
-CMakeFiles/system.dir/imgui/imgui_impl_opengl3.cc.o: ../imgui/imgui_impl_opengl3.cc
-CMakeFiles/system.dir/imgui/imgui_impl_opengl3.cc.o: CMakeFiles/system.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/system.dir/imgui/imgui_impl_opengl3.cc.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/system.dir/imgui/imgui_impl_opengl3.cc.o -MF CMakeFiles/system.dir/imgui/imgui_impl_opengl3.cc.o.d -o CMakeFiles/system.dir/imgui/imgui_impl_opengl3.cc.o -c /home/ruanjian/workspace/project_v/system/imgui/imgui_impl_opengl3.cc
-
-CMakeFiles/system.dir/imgui/imgui_impl_opengl3.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/system.dir/imgui/imgui_impl_opengl3.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ruanjian/workspace/project_v/system/imgui/imgui_impl_opengl3.cc > CMakeFiles/system.dir/imgui/imgui_impl_opengl3.cc.i
-
-CMakeFiles/system.dir/imgui/imgui_impl_opengl3.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/system.dir/imgui/imgui_impl_opengl3.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ruanjian/workspace/project_v/system/imgui/imgui_impl_opengl3.cc -o CMakeFiles/system.dir/imgui/imgui_impl_opengl3.cc.s
-
-CMakeFiles/system.dir/imgui/imgui_draw.cc.o: CMakeFiles/system.dir/flags.make
-CMakeFiles/system.dir/imgui/imgui_draw.cc.o: ../imgui/imgui_draw.cc
-CMakeFiles/system.dir/imgui/imgui_draw.cc.o: CMakeFiles/system.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/system.dir/imgui/imgui_draw.cc.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/system.dir/imgui/imgui_draw.cc.o -MF CMakeFiles/system.dir/imgui/imgui_draw.cc.o.d -o CMakeFiles/system.dir/imgui/imgui_draw.cc.o -c /home/ruanjian/workspace/project_v/system/imgui/imgui_draw.cc
-
-CMakeFiles/system.dir/imgui/imgui_draw.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/system.dir/imgui/imgui_draw.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ruanjian/workspace/project_v/system/imgui/imgui_draw.cc > CMakeFiles/system.dir/imgui/imgui_draw.cc.i
-
-CMakeFiles/system.dir/imgui/imgui_draw.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/system.dir/imgui/imgui_draw.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ruanjian/workspace/project_v/system/imgui/imgui_draw.cc -o CMakeFiles/system.dir/imgui/imgui_draw.cc.s
-
-CMakeFiles/system.dir/imgui/imgui_widgets.cc.o: CMakeFiles/system.dir/flags.make
-CMakeFiles/system.dir/imgui/imgui_widgets.cc.o: ../imgui/imgui_widgets.cc
-CMakeFiles/system.dir/imgui/imgui_widgets.cc.o: CMakeFiles/system.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/system.dir/imgui/imgui_widgets.cc.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/system.dir/imgui/imgui_widgets.cc.o -MF CMakeFiles/system.dir/imgui/imgui_widgets.cc.o.d -o CMakeFiles/system.dir/imgui/imgui_widgets.cc.o -c /home/ruanjian/workspace/project_v/system/imgui/imgui_widgets.cc
-
-CMakeFiles/system.dir/imgui/imgui_widgets.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/system.dir/imgui/imgui_widgets.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ruanjian/workspace/project_v/system/imgui/imgui_widgets.cc > CMakeFiles/system.dir/imgui/imgui_widgets.cc.i
-
-CMakeFiles/system.dir/imgui/imgui_widgets.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/system.dir/imgui/imgui_widgets.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ruanjian/workspace/project_v/system/imgui/imgui_widgets.cc -o CMakeFiles/system.dir/imgui/imgui_widgets.cc.s
-
 # Object files for target system
 system_OBJECTS = \
-"CMakeFiles/system.dir/main/sdl2_opengl3.cc.o" \
 "CMakeFiles/system.dir/src/system.cc.o" \
 "CMakeFiles/system.dir/src/systeminfo.cc.o" \
 "CMakeFiles/system.dir/src/file.cc.o" \
@@ -304,40 +205,28 @@ system_OBJECTS = \
 "CMakeFiles/system.dir/src/directory.cc.o" \
 "CMakeFiles/system.dir/src/thread.cc.o" \
 "CMakeFiles/system.dir/src/socket.cc.o" \
-"CMakeFiles/system.dir/src/terminal_window.cc.o" \
-"CMakeFiles/system.dir/imgui/imgui_tables.cc.o" \
-"CMakeFiles/system.dir/imgui/imgui.cc.o" \
-"CMakeFiles/system.dir/imgui/imgui_impl_sdl2.cc.o" \
-"CMakeFiles/system.dir/imgui/imgui_impl_opengl3.cc.o" \
-"CMakeFiles/system.dir/imgui/imgui_draw.cc.o" \
-"CMakeFiles/system.dir/imgui/imgui_widgets.cc.o"
+"CMakeFiles/system.dir/src/terminal_window.cc.o"
 
 # External object files for target system
 system_EXTERNAL_OBJECTS =
 
-system: CMakeFiles/system.dir/main/sdl2_opengl3.cc.o
-system: CMakeFiles/system.dir/src/system.cc.o
-system: CMakeFiles/system.dir/src/systeminfo.cc.o
-system: CMakeFiles/system.dir/src/file.cc.o
-system: CMakeFiles/system.dir/src/mutex.cc.o
-system: CMakeFiles/system.dir/src/time.cc.o
-system: CMakeFiles/system.dir/src/directory.cc.o
-system: CMakeFiles/system.dir/src/thread.cc.o
-system: CMakeFiles/system.dir/src/socket.cc.o
-system: CMakeFiles/system.dir/src/terminal_window.cc.o
-system: CMakeFiles/system.dir/imgui/imgui_tables.cc.o
-system: CMakeFiles/system.dir/imgui/imgui.cc.o
-system: CMakeFiles/system.dir/imgui/imgui_impl_sdl2.cc.o
-system: CMakeFiles/system.dir/imgui/imgui_impl_opengl3.cc.o
-system: CMakeFiles/system.dir/imgui/imgui_draw.cc.o
-system: CMakeFiles/system.dir/imgui/imgui_widgets.cc.o
-system: CMakeFiles/system.dir/build.make
-system: CMakeFiles/system.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Linking CXX executable system"
+libsystemd.a: CMakeFiles/system.dir/src/system.cc.o
+libsystemd.a: CMakeFiles/system.dir/src/systeminfo.cc.o
+libsystemd.a: CMakeFiles/system.dir/src/file.cc.o
+libsystemd.a: CMakeFiles/system.dir/src/mutex.cc.o
+libsystemd.a: CMakeFiles/system.dir/src/time.cc.o
+libsystemd.a: CMakeFiles/system.dir/src/directory.cc.o
+libsystemd.a: CMakeFiles/system.dir/src/thread.cc.o
+libsystemd.a: CMakeFiles/system.dir/src/socket.cc.o
+libsystemd.a: CMakeFiles/system.dir/src/terminal_window.cc.o
+libsystemd.a: CMakeFiles/system.dir/build.make
+libsystemd.a: CMakeFiles/system.dir/link.txt
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ruanjian/workspace/project_v/system/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX static library libsystemd.a"
+	$(CMAKE_COMMAND) -P CMakeFiles/system.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/system.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
-CMakeFiles/system.dir/build: system
+CMakeFiles/system.dir/build: libsystemd.a
 .PHONY : CMakeFiles/system.dir/build
 
 CMakeFiles/system.dir/clean:

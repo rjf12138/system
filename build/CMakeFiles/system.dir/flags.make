@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/ruanjian/workspace/project_v/system/./inc -I/home/ruanjian/workspace/project_v/system/./extern_inc -I/home/ruanjian/workspace/project_v/system/src -I/home/ruanjian/workspace/project_v/system/imgui
+CXX_INCLUDES = -I/home/ruanjian/workspace/project_v/system/./inc -I/home/ruanjian/workspace/project_v/system/./extern_inc -I/home/ruanjian/workspace/project_v/system/src
 
 CXX_FLAGS = -g -DCHECK_PTHREAD_RETURN_VALUE -D_FILE_OFFSET_BITS=64 -march=native -rdynamic -g
 
