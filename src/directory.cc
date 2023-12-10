@@ -53,7 +53,8 @@ Directory::get_cur_executable_path(bool exec_file_path)
 			LOG_GLOBAL_ERROR("exec_dir_path: %s", arr_tmp);
 			return "";
 		}
-		return dir_path;
+		*(dir_path + 1) = '\0';
+		return arr_tmp;
 	}
     return std::string(arr_tmp);
 }
