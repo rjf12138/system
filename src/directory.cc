@@ -37,13 +37,23 @@ Directory::change_program_running_dir(std::string &new_path)
 }
 
 std::string 
-Directory::get_cur_executable_path(void)
+Directory::get_cur_executable_path(bool exec_file_path)
 {
     char arr_tmp[2048] = {0};
     
-    int n = readlink("/proc/self/exe", arr_tmp, 2048);
-	if (strrchr(arr_tmp, '/') == nullptr) {	// strrchr判断'/'最后一次出现位置，一次都没出现就返回空
+    int ret = readlink("/proc/self/exe", arr_tmp, 2048); // 返回可执行文件路径
+	if (ret < 0) {
+		LOG_GLOBAL_ERROR("readlink: %s", strerror(errno));
 		return "";
+	}
+
+	if (exec_file_path == false) { // 返回可执行文件所在目录路径
+		char *dir_path = strrchr(arr_tmp, '/'); // strrchr判断'/'最后一次出现位置，表示返回可执行文件所在目录
+		if (dir_path == nullptr) {
+			LOG_GLOBAL_ERROR("exec_dir_path: %s", arr_tmp);
+			return "";
+		}
+		return dir_path;
 	}
     return std::string(arr_tmp);
 }
