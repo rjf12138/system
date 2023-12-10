@@ -435,6 +435,8 @@ public:
     static std::string get_program_running_dir(void);
     // 修改程序当前的运行路径
 	static int change_program_running_dir(std::string &new_path);
+    // 获取可执行文件所在目录
+    static std::string get_cur_executable_path(void);
 
     // 获取当前打开的目录路径
 	std::string get_curr_dir_path(void);

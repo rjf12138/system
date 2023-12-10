@@ -37,6 +37,18 @@ Directory::change_program_running_dir(std::string &new_path)
 }
 
 std::string 
+Directory::get_cur_executable_path(void)
+{
+    char arr_tmp[2048] = {0};
+    
+    int n = readlink("/proc/self/exe", arr_tmp, 2048);
+	if (strrchr(arr_tmp, '/') == nullptr) {	// strrchr判断'/'最后一次出现位置，一次都没出现就返回空
+		return "";
+	}
+    return std::string(arr_tmp);
+}
+
+std::string 
 Directory::get_curr_dir_path(void)
 {
 	if (dir_ == nullptr) {
@@ -262,6 +274,7 @@ Directory::rename(const std::string &old_name, const std::string &new_name, bool
 }
 
 // 拷贝、移动当前目录
+// 存在问题后续需要测试
 int 
 Directory::copy(const std::string &des_path)
 {
