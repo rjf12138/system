@@ -248,12 +248,13 @@ ThreadPool::add_task(Task &task)
         return 0;
     }
 
+    task_mutex_.lock();
     if (tasks_.size() >= static_cast<int>(thread_pool_config_.max_waiting_task)) {
         LOG_INFO("The number of tasks in the cache has reached the maximum.[size: %d, max: %d]", tasks_.size(), thread_pool_config_.max_waiting_task);
+        task_mutex_.unlock();
         return 0;
     }
 
-    task_mutex_.lock();
     int ret = tasks_.push(task);
     task_mutex_.unlock();
 
@@ -269,12 +270,13 @@ ThreadPool::add_priority_task(Task &task)
         return 0;
     }
 
+    task_mutex_.lock();
     if (priority_tasks_.size() >= static_cast<int>(thread_pool_config_.max_waiting_task)) {
         LOG_INFO("The number of priority_tasks in the cache has reached the maximum.[size: %d, max: %d]", priority_tasks_.size(), thread_pool_config_.max_waiting_task);
+        task_mutex_.unlock();
         return 0;
     }
 
-    task_mutex_.lock();
     int ret = priority_tasks_.push(task);
     task_mutex_.unlock();
 
@@ -388,7 +390,10 @@ ThreadPool::ajust_threads_num(void)
 
         auto iter = idle_threads_.begin();
         for (std::size_t i = 0; i < stop_threads; ++i) {
-            iter->second->stop_handler();
+            WorkThread *del_work_thread_ptr = iter->second;
+            iter = idle_threads_.erase(iter);
+            del_work_thread_ptr->stop_handler();
+            delete del_work_thread_ptr;
         }
     }
     thread_mutex_.unlock();
