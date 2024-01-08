@@ -66,7 +66,9 @@ int Thread::start_handler(void) {return 0; }
 
 ////////////////////////////////////// WorkThread ///////////////////////////////////////
 WorkThread::WorkThread(ThreadPool *thread_pool, int idle_life)
-: idle_life_(idle_life), thread_pool_(thread_pool)
+: idle_life_(idle_life), 
+thread_pool_(thread_pool),
+state_(WorkThread_WAITING)
 {
     start_idle_life_ = time(NULL);
 #ifdef __RJF_LINUX__
@@ -112,7 +114,6 @@ WorkThread::run_handler(void)
                 task_.work_func(task_.thread_arg);
                 task_.state = THREAD_TASK_COMPLETE;
             }
-            thread_pool_->thread_move_to_idle_map(get_thread_id());
         }
     }
     state_ = WorkThread_EXIT;
@@ -187,7 +188,7 @@ ThreadPool::ThreadPool(void)
     for (std::size_t i = 0; i < thread_pool_config_.threads_num; ++i) {
         WorkThread *work_thread = new WorkThread(this);
         work_thread->init();
-        idle_threads_[work_thread->get_thread_id()] = work_thread;
+        threads_[work_thread->get_thread_id()] = work_thread;
     }
     thread_mutex_.unlock();
     // 运行线程池
@@ -197,11 +198,7 @@ ThreadPool::ThreadPool(void)
 ThreadPool::~ThreadPool(void)
 {
     this->stop_handler();
-    for (auto iter = idle_threads_.begin(); iter != idle_threads_.end(); ++iter) {
-        delete iter->second;
-    }
-
-    for (auto iter = runing_threads_.begin(); iter != runing_threads_.end(); ++iter) {
+    for (auto iter = threads_.begin(); iter != threads_.end(); ++iter) {
         delete iter->second;
     }
 }
@@ -215,7 +212,7 @@ ThreadPool::run_handler(void)
             ajust_threads_num();
             curr = Time::now();
         }
-        if (tasks_.size() <= 0 || runing_threads_.size() == thread_pool_config_.threads_num) {
+        if (tasks_.size() <= 0) {
             Time::sleep(5);
             continue;
         }
@@ -298,77 +295,16 @@ ThreadPool::get_task(Task &task)
     return ret;
 }
 
-int 
-ThreadPool::thread_move_to_idle_map(thread_id_t thread_id)
-{
-    thread_mutex_.lock();
-    auto iter = runing_threads_.find(thread_id);
-    if (iter == runing_threads_.end()) {
-        LOG_WARN("Can't find thread(thread_id: %ld) at runing_threads", thread_id);
-        thread_mutex_.unlock();
-        return 0;
-    }
-
-    if (idle_threads_.find(thread_id) != idle_threads_.end()) {
-        LOG_WARN("There is exists a thread(thread_id: %ld) at idle_threads", thread_id);
-        thread_mutex_.unlock();
-        return 0;
-    }
-
-    idle_threads_[thread_id] = iter->second;
-    runing_threads_.erase(iter);
-    idle_threads_[thread_id]->pause();
-
-    thread_mutex_.unlock();
-
-    return 1;
-}
-
-int 
-ThreadPool::wakeup_specify_thread(thread_id_t thread_id)
-{
-    thread_mutex_.lock();
-    auto iter = idle_threads_.find(thread_id);
-    if (iter == idle_threads_.end()) {
-        LOG_WARN("Can't find thread(thread_id: %ld) at idle_threads", thread_id);
-        thread_mutex_.unlock();
-        return 0;
-    }
-
-    if (runing_threads_.find(thread_id) != runing_threads_.end()) {
-        LOG_WARN("There is exists a thread(thread_id: %ld) at runing_threads", thread_id);
-        thread_mutex_.unlock();
-        return 0;
-    }
-
-    runing_threads_[thread_id] = iter->second;
-    idle_threads_.erase(iter);
-    runing_threads_[thread_id]->resume();
-
-    thread_mutex_.unlock();
-
-    return 1;
-}
-
 std::size_t
 ThreadPool::wakeup_random_thread(std::size_t thread_cnt)
 {
     thread_mutex_.lock();
-    if (idle_threads_.size() <= 0) {
-        thread_mutex_.unlock();
-        return 0;
+    for (auto iter = threads_.begin(); iter != threads_.end(); ++iter) {
+        if (iter->second->get_current_state() != WorkThread_WAITING) {
+            continue;
+        }
+        iter->second->resume();
     }
-
-    thread_cnt = (idle_threads_.size() > thread_cnt ? thread_cnt:idle_threads_.size());
-    for (std::size_t i = 0; i < thread_cnt; ++i) {
-        auto iter = idle_threads_.begin();
-        thread_id_t id = iter->first;
-        runing_threads_[id] = iter->second;
-        idle_threads_.erase(iter);
-        runing_threads_[id]->resume();
-    }
-    thread_mutex_.unlock();
-
     return thread_cnt;
 }
 
@@ -376,24 +312,24 @@ int
 ThreadPool::ajust_threads_num(void)
 {
     thread_mutex_.lock();
-    std::size_t max_threads = idle_threads_.size() + runing_threads_.size();
-    if (max_threads < thread_pool_config_.threads_num) {
-        std::size_t start_threads = thread_pool_config_.threads_num - max_threads;
+    if (threads_.size() < thread_pool_config_.threads_num) {
+        std::size_t start_threads = thread_pool_config_.threads_num - threads_.size();
         for (std::size_t i = 0; i < start_threads; ++i) {
             WorkThread *work_thread = new WorkThread(this);
             work_thread->init();
-            idle_threads_[work_thread->get_thread_id()] = work_thread;
+            threads_[work_thread->get_thread_id()] = work_thread;
         }
-    } else if (max_threads > thread_pool_config_.threads_num) {
-        std::size_t stop_threads = max_threads - thread_pool_config_.threads_num;
-        stop_threads = stop_threads > idle_threads_.size() ? idle_threads_.size() : stop_threads;
-
-        auto iter = idle_threads_.begin();
-        for (std::size_t i = 0; i < stop_threads; ++i) {
-            WorkThread *del_work_thread_ptr = iter->second;
-            iter = idle_threads_.erase(iter);
-            del_work_thread_ptr->stop_handler();
-            delete del_work_thread_ptr;
+    } else if (threads_.size() > thread_pool_config_.threads_num) {
+        std::size_t stop_threads = thread_pool_config_.threads_num - threads_.size();
+        for (auto iter = threads_.begin(); iter != threads_.end(); ++iter) {
+            if (stop_threads > 0) {
+                if (iter->second->get_current_state() == WorkThread_WAITING) {
+                    WorkThread *del_work_thread_ptr = iter->second;
+                    iter = threads_.erase(iter);
+                    del_work_thread_ptr->stop_handler();
+                    delete del_work_thread_ptr;
+                }
+            }
         }
     }
     thread_mutex_.unlock();
@@ -427,25 +363,21 @@ ThreadPool::shutdown_all_threads(void)
     LOG_INFO("Action: %s", action == WAIT_FOR_ALL_TASKS_FINISHED ? "WAIT_FOR_ALL_TASKS_FINISHED":"SHUTDOWN_ALL_THREAD_IMMEDIATELY");
     
     if (action == WAIT_FOR_ALL_TASKS_FINISHED) {
-        // 等待任务完成
-        while (runing_threads_.size() > 0) {
-            LOG_INFO("Wait for task finish, Working threads num: %d", runing_threads_.size());
-            Time::sleep(1000);
-        }
-    } else {
-        // 停止所有正在处理任务的线程
-        for (auto iter = runing_threads_.begin(); iter != runing_threads_.end();) {
-            auto stop_iter = iter++;
-            stop_iter->second->stop_handler();
+        while (true) {
+            int running_thread_cnt = 0;
+            for (auto iter = threads_.begin(); iter != threads_.end(); ++iter) {
+                if (iter->second->get_current_state() == WorkThread_WAITING) {
+                    ++running_thread_cnt;
+                }
+            }
+            LOG_INFO("Wait for task finish, Working threads num: %d", running_thread_cnt);
+            if (running_thread_cnt <= 0) {
+                break;
+            }
         }
     }
 
-    while (runing_threads_.size() > 0) {
-        LOG_INFO("shutdown running threads[size: %d]", idle_threads_.size());
-        Time::sleep(500);
-    }
-
-    for (auto iter = idle_threads_.begin(); iter != idle_threads_.end(); ) {
+    for (auto iter = threads_.begin(); iter != threads_.end(); ) {
         auto stop_iter = iter++;
         stop_iter->second->stop_handler();
         
@@ -472,8 +404,13 @@ ThreadPool::get_running_info(void)
     } else {
         running_info.exit_action =  "UNKNOWN_ACTION";
     }
-    running_info.running_threads_num = static_cast<int>(runing_threads_.size());
-    running_info.idle_threads_num = static_cast<int>(idle_threads_.size());
+
+    running_info.running_threads_num = 0;
+    running_info.idle_threads_num = 0;
+    for (auto iter = threads_.begin(); iter != threads_.end(); ++iter) {
+        ++running_info.running_threads_num;
+        ++running_info.idle_threads_num;
+    }
     running_info.waiting_tasks = static_cast<int>(tasks_.size());
     running_info.waiting_prio_tasks = static_cast<int>(priority_tasks_.size());
 
@@ -507,8 +444,8 @@ ThreadPool::print_threadpool_info(void *arg)
         ostr << "max-waiting-tasks: " << thread_pool_ptr->thread_pool_config_.max_waiting_task << std::endl;
         ostr << "action when threadpool exit: " << info.exit_action << std::endl;
         ostr << "==================thread pool realtime data===================" << std::endl;
-        ostr << "running threads: " << thread_pool_ptr->runing_threads_.size() << std::endl;
-        ostr << "idle threads: " << thread_pool_ptr->idle_threads_.size() << std::endl;
+        ostr << "running threads: " << info.running_threads_num << std::endl;
+        ostr << "idle threads: " << info.idle_threads_num << std::endl;
         ostr << "waiting tasks: " << thread_pool_ptr->tasks_.size() << std::endl;
         ostr << "waiting prio tasks: " << thread_pool_ptr->priority_tasks_.size() << std::endl;
         ostr << "thread pool state: " << info.curr_status << std::endl;

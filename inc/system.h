@@ -381,10 +381,6 @@ private:
     // 除了工作线程之外，其他任何代码都不要去调用该函数，否则会导致的任务丢失
     int get_task(Task &task);
 
-    // 休眠指定线程
-    int thread_move_to_idle_map(thread_id_t thread_id);
-    // 运行指定线程
-    int wakeup_specify_thread(thread_id_t thread_id);
     // 随机唤醒一个线程
     std::size_t wakeup_random_thread(std::size_t thread_cnt);
     // 调整线程数量
@@ -407,8 +403,7 @@ private:
 
     ds::Queue<Task> tasks_;   // 普通任务队列
     ds::Queue<Task> priority_tasks_; // 优先任务队列
-    std::map<thread_id_t, WorkThread*> runing_threads_; // 运行中的线程列表
-    std::map<thread_id_t, WorkThread*> idle_threads_; // 空闲的线程列表
+    std::map<thread_id_t, WorkThread*> threads_; // 运行中的线程列表
 };
 //////////////////////////////// 目录操作 /////////////////////////////////////////////////
 enum EFileType {

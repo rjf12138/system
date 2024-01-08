@@ -68,6 +68,8 @@
         "thread": "cpp",
         "__nullptr": "cpp",
         "list": "cpp",
-        "cfenv": "cpp"
+        "cfenv": "cpp",
+        "__hash_table": "cpp",
+        "__tree": "cpp"
     }
 }
