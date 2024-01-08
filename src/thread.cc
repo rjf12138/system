@@ -109,11 +109,13 @@ WorkThread::run_handler(void)
         }
         mutex_.unlock();
         if (state_ == WorkThread_RUNNING) {
-            if (thread_pool_->get_task(task_) > 0) {
+            while (thread_pool_->get_task(task_) > 0) {
                 task_.state = THREAD_TASK_HANDLE;
                 task_.work_func(task_.thread_arg);
                 task_.state = THREAD_TASK_COMPLETE;
             }
+            // 没有任务就休眠
+            this->pause();
         }
     }
     state_ = WorkThread_EXIT;
@@ -212,11 +214,10 @@ ThreadPool::run_handler(void)
             ajust_threads_num();
             curr = Time::now();
         }
-        if (tasks_.size() <= 0) {
-            Time::sleep(5);
-            continue;
+
+        if (tasks_.size() > 0) {
+            wakeup_random_thread();
         }
-        wakeup_random_thread(tasks_.size());
     }
 
     return 0;
@@ -295,8 +296,8 @@ ThreadPool::get_task(Task &task)
     return ret;
 }
 
-std::size_t
-ThreadPool::wakeup_random_thread(std::size_t thread_cnt)
+void
+ThreadPool::wakeup_random_thread(void)
 {
     thread_mutex_.lock();
     for (auto iter = threads_.begin(); iter != threads_.end(); ++iter) {
@@ -305,7 +306,6 @@ ThreadPool::wakeup_random_thread(std::size_t thread_cnt)
         }
         iter->second->resume();
     }
-    return thread_cnt;
 }
 
 int 

@@ -382,7 +382,7 @@ private:
     int get_task(Task &task);
 
     // 随机唤醒一个线程
-    std::size_t wakeup_random_thread(std::size_t thread_cnt);
+    void wakeup_random_thread(void);
     // 调整线程数量
     int ajust_threads_num(void);
     
