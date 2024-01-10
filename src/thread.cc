@@ -306,6 +306,7 @@ ThreadPool::wakeup_random_thread(void)
         }
         iter->second->resume();
     }
+    thread_mutex_.unlock();
 }
 
 int 
