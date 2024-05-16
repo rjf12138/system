@@ -210,7 +210,7 @@ ThreadPool::run_handler(void)
 {
     mtime_t curr = Time::now();
     while (!exit_) {
-        if (Time::now() - curr > 100) {
+        if (Time::now() - curr > 2000) {
             ajust_threads_num();
             curr = Time::now();
         }
@@ -218,6 +218,8 @@ ThreadPool::run_handler(void)
         if (tasks_.size() > 0) {
             wakeup_random_thread();
         }
+
+        Time::sleep(500);
     }
 
     return 0;
