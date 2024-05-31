@@ -2,7 +2,9 @@
 
 namespace os {
 
-Mutex::Mutex(void) 
+Mutex::Mutex(bool is_show_lock_info)
+    : is_show_lock_info_(is_show_lock_info),
+    is_locked_(false)
 {
     this->set_stream_func(LOG_LEVEL_TRACE, g_msg_to_stream_trace);
     this->set_stream_func(LOG_LEVEL_DEBUG, g_msg_to_stream_debug);
@@ -32,8 +34,12 @@ Mutex::~Mutex(void)
 }
 
 int 
-Mutex::lock(void)
+Mutex::lock(const std::string& func_pos, int pos)
 {
+    if (is_show_lock_info_) {
+        LOG_INFO("file pos: %s:%d, lock status: %s, lock_id: %d", func_pos.c_str() + func_pos.find_last_of('/') + 1, pos, is_locked_ ? "waiting unlock" : "locking", lock_id_);
+    }
+
 #ifdef __RJF_LINUX__
     int ret = ::pthread_mutex_lock(mutex_ptr_);
     if (ret != 0) {
@@ -42,12 +48,21 @@ Mutex::lock(void)
     }
 #endif
 
+    if (is_show_lock_info_) {
+        is_locked_ = true;
+        lock_id_ = os::Time::now();
+    }
+
     return 0;
 }
 
 int 
-Mutex::trylock(void)
+Mutex::trylock(const std::string& func_pos, int pos)
 {
+    if (is_show_lock_info_) {
+        LOG_INFO("file pos: %s:%d, lock status: %s, lock_id: %d", func_pos.c_str() + func_pos.find_last_of('/') + 1, pos, is_locked_ ? "waiting unlock" : "locking", lock_id_);
+    }
+
 #ifdef __RJF_LINUX__
     int ret = ::pthread_mutex_trylock(mutex_ptr_);
     if (ret != 0) {
@@ -55,13 +70,21 @@ Mutex::trylock(void)
         return -1;
     }
 #endif
+    if (is_show_lock_info_) {
+        is_locked_ = true;
+        lock_id_ = os::Time::now();
+    }
 
     return 0;
 }
 
 int 
-Mutex::unlock(void)
+Mutex::unlock(const std::string& func_pos, int pos)
 {
+    if (is_show_lock_info_) {
+        LOG_INFO("file pos: %s:%d, lock status: %s, lock_id: %d", func_pos.c_str() + func_pos.find_last_of('/') + 1, pos, is_locked_ ? "unlocking" : "not locked", lock_id_);
+    }
+
 #ifdef __RJF_LINUX__
     int ret = ::pthread_mutex_unlock(mutex_ptr_);
     if (ret != 0) {
@@ -69,6 +92,11 @@ Mutex::unlock(void)
         return -1;
     }
 #endif
+
+    if (is_show_lock_info_) {
+        is_locked_ = false;
+        lock_id_ = 0;
+    }
 
     return 0;
 }
