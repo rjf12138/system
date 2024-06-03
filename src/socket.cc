@@ -76,7 +76,7 @@ SocketTCP::set_reuse_addr(void)
     }
 
     int enable = 1;
-    int ret = ::setsockopt(socket_,SOL_SOCKET,SO_REUSEADDR,reinterpret_cast<void*>(&enable),sizeof(enable));
+    int ret = ::setsockopt(socket_,SOL_SOCKET,SO_REUSEADDR, &enable, sizeof(int));
     if (ret < 0) {
         LOG_ERROR("setsockopt: %s", strerror(errno));
         return -1;
