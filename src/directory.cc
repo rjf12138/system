@@ -110,11 +110,11 @@ Directory::open_dir(const std::string &path)
 	return 0;
 }
 
-std::vector<SFileType> 
+std::map<std::string, SFileType>
 Directory::file_list(bool ret_default_dir)
 {
 	SFileType file;
-	std::vector<SFileType> files;
+	std::map<std::string, SFileType> files;
 	if (dir_ == nullptr) {
 		LOG_ERROR("Current not open any dir!\n");
 		return files;
@@ -138,7 +138,7 @@ Directory::file_list(bool ret_default_dir)
 			file.type = EFileType_Dir;
 		}
 		file.abs_path_ = get_abs_path(dir_ptr->d_name);
-		files.push_back(file);
+		files[file.name] = file;
 	}
 
 	return files;
@@ -241,6 +241,11 @@ Directory::remove(const std::string &path, bool is_abs)
 		return 0;
 	}
 
+	if (path == "/") {
+		LOG_ERROR("root dir can't remove!\n");
+		return 0;
+	}
+
 	if (file_type(abs_path.c_str(), is_abs) == EFileType_File || file_type(abs_path.c_str(), is_abs) == EFileType_Link) {
 		if (::remove(abs_path.c_str()) < 0) { // 系统调用删除文件
 			return -1;
@@ -252,13 +257,13 @@ Directory::remove(const std::string &path, bool is_abs)
 			return -1;
 		}
 
-		std::vector<SFileType> files_list = dir.file_list();
-		for (std::size_t i = 0; i < files_list.size(); ++i) {
-			if (files_list[i].name == "." || files_list[i].name == "..") {
+		std::map<std::string, SFileType> files_list = dir.file_list();
+		for (auto iter = files_list.begin(); iter != files_list.end(); ++iter) {
+			if (iter->first == "." || iter->first == "..") {
 				continue;
 			}
 
-			if (dir.remove(files_list[i].name) < 0) {
+			if (dir.remove(iter->first) < 0) {
 				return -1;
 			}
 		}
