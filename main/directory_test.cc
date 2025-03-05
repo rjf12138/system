@@ -10,7 +10,7 @@ int main(void)
         dir.remove("./test", true);
     }
 
-    dir.create("./test", os::EFileType_Dir, DEFAULT_DIR_RIGHT, true);
+    dir.create("./test", os::EFileType_Dir, true, DEFAULT_DIR_RIGHT);
     dir.open_dir("./test");
 
     dir.create("file1.txt", os::EFileType_File);

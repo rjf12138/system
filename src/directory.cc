@@ -195,7 +195,7 @@ Directory::file_type(const std::string  &file_path, bool is_abs)
 }
 
 int 
-Directory::create(const std::string &path, EFileType type, uint mode, bool is_abs)
+Directory::create(const std::string &path, EFileType type, bool is_abs, uint mode)
 {
 	std::string abs_path = path;
 	if (is_abs == false && dir_ == nullptr) {

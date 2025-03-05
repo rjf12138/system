@@ -457,7 +457,7 @@ public:
     // 指定路径文件的类型
 	EFileType file_type(const std::string  &file_path, bool is_abs = false);
     // 创建文件或者是目录
-	int create(const std::string &path, EFileType type, uint mode = DEFAULT_DIR_RIGHT, bool is_abs = false);
+	int create(const std::string &path, EFileType type, bool is_abs = false, uint mode = DEFAULT_DIR_RIGHT);
     // 删除文件或目录
 	int remove(const std::string &path, bool is_abs = false);
     // 重命名文件或目录
