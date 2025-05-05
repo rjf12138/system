@@ -324,21 +324,17 @@ SocketTCP::recv(ByteBuffer &buff, int flags)
         ret = ::recv(socket_, buffer, 2048, flags);
         if (ret < 0) {
             if (errno == EWOULDBLOCK || errno == EAGAIN) {
-                break;
+                continue;
             }
-
-            if (errno != EINTR) {
-                LOG_ERROR("recv: %s", strerror(errno));
-                this->close();
-                break;
-            }
-            continue;
-        } 
-        buff.write_bytes(buffer, ret);
-        if (ret == buffer_size) {
-            continue;
+            LOG_ERROR("recv: %s", strerror(errno));
+            this->close();
+            break;
+        } else if (ret == 0) {
+            break; // 没有数据了
         }
-    } while (false);
+
+        buff.write_bytes(buffer, ret);
+    } while (true);
    
     return static_cast<int>(buff.data_size());
 }
