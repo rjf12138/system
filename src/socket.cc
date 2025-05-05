@@ -317,6 +317,7 @@ SocketTCP::recv(ByteBuffer &buff, int flags)
         return -1;
     }
 
+    int again_count = 0;
     const int buffer_size = 2048;
     char buffer[buffer_size] = {0};
     ssize_t ret = 0;
@@ -324,6 +325,11 @@ SocketTCP::recv(ByteBuffer &buff, int flags)
         ret = ::recv(socket_, buffer, 2048, flags);
         if (ret < 0) {
             if (errno == EWOULDBLOCK || errno == EAGAIN) {
+                ++again_count;
+                os::Time::sleep(100);
+                if (again_count > 3) {
+                    break;
+                }
                 continue;
             }
             LOG_ERROR("recv: %s", strerror(errno));
@@ -332,10 +338,10 @@ SocketTCP::recv(ByteBuffer &buff, int flags)
         } else if (ret == 0) {
             break; // 没有数据了
         }
-
         buff.write_bytes(buffer, ret);
+        again_count = 0;
     } while (true);
-   
+
     return static_cast<int>(buff.data_size());
 }
 
