@@ -1,6 +1,6 @@
 {
   "name": "system",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "path": "/home/ruanjian/workspace/project/system",
   "uuid": "f78334bd-68a1-4808-bd91-3900e0c74e08",
   "build_system": "cmake",
@@ -74,6 +74,13 @@
       "type": "executable",
       "source_files": [
         "main/directory_test.cc"
+      ]
+    },
+    {
+      "name": "regression_test",
+      "type": "executable",
+      "source_files": [
+        "main/regression_test.cc"
       ]
     },
     {

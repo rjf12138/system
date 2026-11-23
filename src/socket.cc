@@ -1,14 +1,21 @@
 #include "system.h"
 
+#include <algorithm>
+#include <poll.h>
+
 namespace os {
 SocketTCP::SocketTCP(void)
-: is_enable_(false)
+: is_enable_(false),
+socket_(-1),
+port_(0)
 {
 
 }
 
 SocketTCP::SocketTCP(std::string ip, uint16_t port)
-: is_enable_(false)
+: is_enable_(false),
+socket_(-1),
+port_(0)
 {
     this->create_socket(ip, port);
 }
@@ -21,13 +28,16 @@ SocketTCP::~SocketTCP()
 int 
 SocketTCP::close(void)
 {
-    if (is_enable_) {
-        is_enable_ = false;
-        int ret = ::close(socket_);
-        if (ret < 0) {
-            LOG_ERROR("close failed: %s", strerror(errno));
-            return -1;
-        }
+    if (is_enable_ == false) {
+        return 0;
+    }
+
+    int fd = socket_;
+    socket_ = -1;
+    is_enable_ = false;
+    if (::close(fd) < 0) {
+        LOG_ERROR("close failed: %s", strerror(errno));
+        return -1;
     }
 
     return 0;
@@ -36,13 +46,13 @@ SocketTCP::close(void)
 int 
 SocketTCP::shutdown(int how)
 {
-    if (is_enable_) {
-        int ret = ::shutdown(socket_, how);
-        if (ret < 0) {
-            is_enable_ = false;
-            LOG_ERROR("shutdown failed: %s", strerror(errno));
-            return -1;
-        }
+    if (is_enable_ == false) {
+        return 0;
+    }
+
+    if (::shutdown(socket_, how) < 0) {
+        LOG_ERROR("shutdown failed: %s", strerror(errno));
+        return -1;
     }
 
     return 0;
@@ -56,7 +66,11 @@ SocketTCP::setnonblocking(void)
         return -1;
     }
     
-    int old_option = fcntl(socket_, F_GETFL);
+    int old_option = ::fcntl(socket_, F_GETFL);
+    if (old_option < 0) {
+        LOG_ERROR("fcntl(F_GETFL): %s", strerror(errno));
+        return -1;
+    }
     int new_option = old_option | O_NONBLOCK;
     int ret = ::fcntl(socket_, F_SETFL, new_option);
     if (ret < 0) {
@@ -113,6 +127,9 @@ SocketTCP::get_ip_info(std::string &ip, uint16_t &port)
 std::string 
 SocketTCP::get_ip_info(void)
 {
+    if (is_enable_ == false) {
+        return "";
+    }
     return ip_ + ":" + std::to_string(port_);
 }
 
@@ -140,39 +157,44 @@ SocketTCP::check_ip_addr(std::string addr)
 int
 SocketTCP::get_addr_by_hostname(std::string hostname, std::string &addr)
 {
-    struct addrinfo     *ailist, *aip;
-    struct addrinfo     hint;
-    struct sockaddr_in  *sinp;
-    char                abuf[INET_ADDRSTRLEN];
+    addr.clear();
 
-    hint.ai_flags = AI_CANONNAME;
-    hint.ai_family = 0;
-    hint.ai_socktype = 0;
-    hint.ai_protocol = 0;
-    hint.ai_addrlen = 0;
-    hint.ai_canonname = NULL;
-    hint.ai_addr = NULL;
-    hint.ai_next = NULL;
-    
-    int ret = getaddrinfo(hostname.c_str(), NULL, &hint, &ailist);
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+
+    struct addrinfo *ailist = nullptr;
+    int ret = ::getaddrinfo(hostname.c_str(), nullptr, &hints, &ailist);
     if (ret != 0) {
-        LOG_WARN("getaddrinfo: %s", gai_strerror(ret));
+        LOG_WARN("getaddrinfo[%s]: %s", hostname.c_str(), gai_strerror(ret));
         return -1;
     }
 
-    for (aip = ailist; aip != NULL; aip = aip->ai_next) {
-        if (aip->ai_family == AF_INET && aip->ai_protocol == IPPROTO_TCP) {
-            sinp = reinterpret_cast<struct sockaddr_in*>(aip->ai_addr);
-            addr = inet_ntop(AF_INET, &sinp->sin_addr, abuf, INET_ADDRSTRLEN);
-            if (addr.length() == 0 || addr == "127.0.0.1") {
-                LOG_WARN("Cant get addr by hostname[%s]", hostname.c_str());
-                return -1;
-            }
-            break;
+    int result = -1;
+    for (struct addrinfo *aip = ailist; aip != nullptr; aip = aip->ai_next) {
+        if (aip->ai_family != AF_INET || aip->ai_addr == nullptr) {
+            continue;
         }
+
+        char abuf[INET_ADDRSTRLEN] = {0};
+        const char *ip = ::inet_ntop(AF_INET, &reinterpret_cast<struct sockaddr_in*>(aip->ai_addr)->sin_addr,
+                                     abuf, sizeof(abuf));
+        if (ip == nullptr) {
+            LOG_ERROR("inet_ntop: %s", strerror(errno));
+            continue;
+        }
+        addr = ip;
+        result = 0;
+        break;
     }
 
-    return 0;
+    ::freeaddrinfo(ailist);
+    if (result != 0) {
+        LOG_WARN("Cant get IPv4 addr by hostname[%s]", hostname.c_str());
+    }
+    return result;
 }
 
 int 
@@ -182,13 +204,12 @@ SocketTCP::set_socket(int clisock, struct sockaddr_in *cliaddr, socklen_t *addrl
         LOG_WARN("set_socket failed, there's already opened a socket.");
         return -1;
     }
-
-    if (cliaddr == nullptr || addrlen == nullptr) {
+    if (clisock < 0 || cliaddr == nullptr || addrlen == nullptr) {
         return -1;
     }
 
-    char buf[256] = {0};
-    const char *ret = ::inet_ntop(AF_INET, &cliaddr->sin_addr, buf, *addrlen);
+    char buf[INET_ADDRSTRLEN] = {0};
+    const char *ret = ::inet_ntop(AF_INET, &cliaddr->sin_addr, buf, sizeof(buf));
     if (ret == nullptr) {
         LOG_ERROR("inet_ntop: %s", strerror(errno));
         return -1;
@@ -196,6 +217,7 @@ SocketTCP::set_socket(int clisock, struct sockaddr_in *cliaddr, socklen_t *addrl
 
     ip_ = ret;
     port_ = ::ntohs(cliaddr->sin_port);
+    addr_ = *cliaddr;
     socket_ = clisock;
     is_enable_ = true;
 
@@ -213,7 +235,7 @@ SocketTCP::create_socket(std::string ip, uint16_t port)
     if (check_ip_addr(ip) == false) {
         std::string addr;
         int ret = get_addr_by_hostname(ip, addr);
-        if (ret < 0 && addr.length() > 0) {
+        if (ret < 0 || addr.empty()) {
             return -1;
         }
         ip = addr;
@@ -298,11 +320,19 @@ int SocketTCP::accept(int &clisock, struct sockaddr *cliaddr, socklen_t *addrlen
         return -1;
     }
 
-    int ret = ::accept(socket_, cliaddr, addrlen);
+    int ret = -1;
+    do {
+        ret = ::accept(socket_, cliaddr, addrlen);
+    } while (ret < 0 && errno == EINTR);
+
     if (ret < 0) {
-        LOG_ERROR("accept: %s", strerror(errno));
-        this->close();
-        return -1; 
+        // 监听 socket 不应因为一次临时错误被关闭，交给调用方决定是否退出
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            LOG_WARN("accept would block");
+        } else {
+            LOG_ERROR("accept: %s", strerror(errno));
+        }
+        return -1;
     }
     clisock = ret;
 
@@ -317,32 +347,47 @@ SocketTCP::recv(ByteBuffer &buff, int flags)
         return -1;
     }
 
-    int again_count = 0;
+    int old_flags = ::fcntl(socket_, F_GETFL);
+    bool nonblocking = (old_flags != -1 && (old_flags & O_NONBLOCK) != 0);
+
     const int buffer_size = 2048;
     char buffer[buffer_size] = {0};
-    ssize_t ret = 0;
-    do {
-        ret = ::recv(socket_, buffer, 2048, flags);
+    ssize_t recv_size = 0;
+    while (true) {
+        ssize_t ret = ::recv(socket_, buffer, sizeof(buffer), flags);
         if (ret < 0) {
-            if (errno == EWOULDBLOCK || errno == EAGAIN) {
-                ++again_count;
-                os::Time::sleep(100);
-                if (again_count > 3) {
-                    break;
-                }
+            if (errno == EINTR) {
                 continue;
+            }
+            if (errno == EWOULDBLOCK || errno == EAGAIN) {
+                struct pollfd pfd;
+                pfd.fd = socket_;
+                pfd.events = POLLIN;
+                pfd.revents = 0;
+                int poll_ret = ::poll(&pfd, 1, 1000);
+                if (poll_ret > 0) {
+                    continue;
+                }
+                break;
             }
             LOG_ERROR("recv: %s", strerror(errno));
             this->close();
             break;
-        } else if (ret == 0) {
-            break; // 没有数据了
         }
-        buff.write_bytes(buffer, ret);
-        again_count = 0;
-    } while (true);
+        if (ret == 0) {
+            break; // 对端关闭
+        }
 
-    return static_cast<int>(buff.data_size());
+        buff.write_bytes(buffer, static_cast<size_t>(ret));
+        recv_size += ret;
+
+        // 阻塞 socket 一次 recv 后返回，避免在调用方未预期时一直等待
+        if (nonblocking == false) {
+            break;
+        }
+    }
+
+    return recv_size;
 }
 
 ssize_t 
@@ -357,24 +402,45 @@ SocketTCP::send(ByteBuffer &buff, int flags)
         return 0;
     }
 
+    int send_flags = flags;
+#ifdef MSG_NOSIGNAL
+    send_flags |= MSG_NOSIGNAL;
+#endif
+
     ssize_t send_size = 0;
-    do {
-        ssize_t ret = ::send(socket_, buff.get_read_buffer_ptr(), buff.get_cont_read_size(), flags);
-        if (ret < 0) {
-            // 在非阻塞模式下,send函数的过程仅仅是将数据拷贝到协议栈的缓存区而已,
-            // 如果缓存区可用空间不够,则尽能力的拷贝,返回成功拷贝的大小;
-            // 如缓存区可用空间为0,则返回-1,同时设置errno为EAGAIN.
-            LOG_ERROR("send: %s", strerror(errno));
-            if (errno == EAGAIN || errno == EINTR) {
-                Time::sleep(10);
-                continue;
-            }
+    while (buff.data_size() > 0) {
+        size_t chunk = static_cast<size_t>(buff.get_cont_read_size());
+        if (chunk == 0) {
             break;
         }
+
+        ssize_t ret = ::send(socket_, buff.get_read_buffer_ptr(), chunk, send_flags);
+        if (ret < 0) {
+            if (errno == EINTR) {
+                continue;
+            }
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                struct pollfd pfd;
+                pfd.fd = socket_;
+                pfd.events = POLLOUT;
+                pfd.revents = 0;
+                int poll_ret = ::poll(&pfd, 1, 1000);
+                if (poll_ret > 0) {
+                    continue;
+                }
+                break;
+            }
+            LOG_ERROR("send: %s", strerror(errno));
+            break;
+        }
+        if (ret == 0) {
+            break;
+        }
+
         send_size += ret;
         buff.update_read_pos(ret);
-    }  while (buff.data_size() > 0);
-   
+    }
+
     return send_size;
 }
 
@@ -462,40 +528,35 @@ SocketTCP::print_flags(struct addrinfo *aip)
 void 
 SocketTCP::test_getaddr(std::string str)
 {
-    struct addrinfo     *ailist, *aip;
-    struct addrinfo     hint;
-    struct sockaddr_in  *sinp;
-    const char          *addr;
-    int                 err;
-    char                abuf[INET_ADDRSTRLEN];
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_flags = AI_CANONNAME;
+    hints.ai_family = AF_UNSPEC;
 
-    hint.ai_flags = AI_CANONNAME;
-    hint.ai_family = 0;
-    hint.ai_socktype = 0;
-    hint.ai_protocol = 0;
-    hint.ai_addrlen = 0;
-    hint.ai_canonname = NULL;
-    hint.ai_addr = NULL;
-    hint.ai_next = NULL;
-
-    if ((err = getaddrinfo(str.c_str(), NULL, &hint, &ailist)) != 0) {
-        perror("getaddrinfo");
+    struct addrinfo *ailist = nullptr;
+    int err = ::getaddrinfo(str.c_str(), nullptr, &hints, &ailist);
+    if (err != 0) {
+        printf("getaddrinfo: %s\n", gai_strerror(err));
+        return;
     }
 
-    for (aip = ailist; aip != NULL; aip = aip->ai_next) {
+    for (struct addrinfo *aip = ailist; aip != nullptr; aip = aip->ai_next) {
         print_flags(aip);
         print_family(aip);
         print_type(aip);
         print_protocol(aip);
         printf("\n\thost %s", aip->ai_canonname ? aip->ai_canonname : "-");
-        if (aip->ai_family == AF_INET) {
-            sinp = reinterpret_cast<struct sockaddr_in*>(aip->ai_addr);
-            addr = inet_ntop(AF_INET, &sinp->sin_addr, abuf, INET_ADDRSTRLEN);
+        if (aip->ai_family == AF_INET && aip->ai_addr != nullptr) {
+            struct sockaddr_in *sinp = reinterpret_cast<struct sockaddr_in*>(aip->ai_addr);
+            char abuf[INET_ADDRSTRLEN] = {0};
+            const char *addr = ::inet_ntop(AF_INET, &sinp->sin_addr, abuf, sizeof(abuf));
             printf(" address %s", addr ? addr : "unknown");
             printf(" port %d", ntohs(sinp->sin_port));
         }
         printf("\n");
     }
+
+    ::freeaddrinfo(ailist);
 }
 
 }

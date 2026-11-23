@@ -1,4 +1,7 @@
 #include "system.h"
+
+#include <vector>
+
 #ifdef __RJF_LINUX__
 #include <sys/time.h>
 #endif
@@ -18,6 +21,10 @@ msg_to_stream_callback g_msg_to_stream_fatal = output_to_stderr;
 
 void set_systemcall_message_output_callback(InfoLevel level, msg_to_stream_callback func)
 {
+     if (func == nullptr) {
+         LOG_GLOBAL_ERROR("set_systemcall_message_output_callback: func is nullptr");
+         return;
+     }
      switch (level) {
         case LOG_LEVEL_TRACE:
             g_msg_to_stream_trace = func; break;
@@ -44,23 +51,31 @@ int exe_shell_cmd(std::string &ret, const char *format, ...)
 		return -1;
 	}
 
-	char tmp[256] = { 0 };
-
 	va_list aptr;
 	va_start(aptr, format);
-	vsnprintf(tmp, 256, format, aptr);
+	va_list aptr_copy;
+	va_copy(aptr_copy, aptr);
+	int needed = vsnprintf(nullptr, 0, format, aptr);
 	va_end(aptr);
-	
+	if (needed < 0) {
+		va_end(aptr_copy);
+		return -1;
+	}
+
+	std::vector<char> cmd(static_cast<size_t>(needed) + 1, 0);
+	vsnprintf(cmd.data(), cmd.size(), format, aptr_copy);
+	va_end(aptr_copy);
+
 	ret = "";
-	FILE* fpipe = popen(tmp, "r");
+	FILE* fpipe = popen(cmd.data(), "r");
 	if (!fpipe) {
-	  LOG_GLOBAL_ERROR("CMD:%s\rpopen:[%s]\r\n", tmp, strerror(errno));
+	  LOG_GLOBAL_ERROR("CMD:%s\rpopen:[%s]\r\n", cmd.data(), strerror(errno));
 	  return -1;
 	}
 
 	//将数据流读取到buf中
 	const int N_MAX_READ_BUF = 2048;
-	char result[N_MAX_READ_BUF] = {'0'};
+	char result[N_MAX_READ_BUF] = {0};
 	ssize_t read_len = 0;
 	do {
 		read_len = fread(result, 1, N_MAX_READ_BUF, fpipe);
@@ -71,7 +86,11 @@ int exe_shell_cmd(std::string &ret, const char *format, ...)
 		}
 	} while (read_len == N_MAX_READ_BUF);
 
-	pclose(fpipe); 
+	int close_ret = pclose(fpipe);
+	if (close_ret == -1) {
+		LOG_GLOBAL_ERROR("pclose: %s", strerror(errno));
+		return -1;
+	}
 
 	return 0;
 }
@@ -82,22 +101,30 @@ int exe_shell_cmd_to_stdin(const char *format, ...)
 		return -1;
 	}
 
-	char tmp[256] = { 0 };
-
 	va_list aptr;
 	va_start(aptr, format);
-	vsnprintf(tmp, 256, format, aptr);
+	va_list aptr_copy;
+	va_copy(aptr_copy, aptr);
+	int needed = vsnprintf(nullptr, 0, format, aptr);
 	va_end(aptr);
-	
-	FILE* fpipe = popen(tmp, "r");
+	if (needed < 0) {
+		va_end(aptr_copy);
+		return -1;
+	}
+
+	std::vector<char> cmd(static_cast<size_t>(needed) + 1, 0);
+	vsnprintf(cmd.data(), cmd.size(), format, aptr_copy);
+	va_end(aptr_copy);
+
+	FILE* fpipe = popen(cmd.data(), "r");
 	if (!fpipe) {
-	  LOG_GLOBAL_ERROR("CMD:%s\rpopen:[%s]\r\n", tmp, strerror(errno));
+	  LOG_GLOBAL_ERROR("CMD:%s\rpopen:[%s]\r\n", cmd.data(), strerror(errno));
 	  return -1;
 	}
 
 	//将数据流读取到buf中
 	const int N_MAX_READ_BUF = 2048;
-	char result[N_MAX_READ_BUF] = {'0'};
+	char result[N_MAX_READ_BUF] = {0};
 	size_t read_len = 0;
 	do {
 		read_len = fread(result, 1, N_MAX_READ_BUF, fpipe);
@@ -108,7 +135,11 @@ int exe_shell_cmd_to_stdin(const char *format, ...)
 		}
 	} while (read_len == N_MAX_READ_BUF);
 
-	pclose(fpipe); 
+	int close_ret = pclose(fpipe);
+	if (close_ret == -1) {
+		LOG_GLOBAL_ERROR("pclose: %s", strerror(errno));
+		return -1;
+	}
 
 	return 0;
 }

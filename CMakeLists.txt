@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(system VERSION 0.1.1 LANGUAGES CXX)
+project(system VERSION 0.1.2 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -50,6 +50,11 @@ add_executable(directory_test
     ${SRC_FILES}
 )
 
+add_executable(regression_test
+    ${CMAKE_SOURCE_DIR}/main/regression_test.cc
+    ${SRC_FILES}
+)
+
 add_executable(dns
     ${CMAKE_SOURCE_DIR}/main/dns.cc
     ${SRC_FILES}
@@ -89,6 +94,11 @@ target_include_directories(system PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_include_directories(directory_test PRIVATE ${CMAKE_SOURCE_DIR}/inc)
 target_include_directories(directory_test PRIVATE ${CMAKE_SOURCE_DIR}/extern_inc)
 target_include_directories(directory_test PRIVATE ${CMAKE_SOURCE_DIR}/src)
+
+# Include dirs for target regression_test
+target_include_directories(regression_test PRIVATE ${CMAKE_SOURCE_DIR}/inc)
+target_include_directories(regression_test PRIVATE ${CMAKE_SOURCE_DIR}/extern_inc)
+target_include_directories(regression_test PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 # Include dirs for target dns
 target_include_directories(dns PRIVATE ${CMAKE_SOURCE_DIR}/inc)
@@ -131,6 +141,15 @@ target_link_libraries(system
     pthread
 )
 target_link_libraries(directory_test
+    ncurses++
+    form
+    menu
+    panel
+    ncurses
+    basic
+    pthread
+)
+target_link_libraries(regression_test
     ncurses++
     form
     menu

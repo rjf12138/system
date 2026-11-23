@@ -1,6 +1,6 @@
 {
   "name": "system",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "C++ OS utility library: file/directory, thread pool, mutex, socket, time, terminal window",
   "author": "ruanjian",
   "lib_type": "static",

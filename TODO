@@ -1,1 +1,5 @@
+（以下问题已处理）
 1. 当读取的文件长度为0时会崩溃
+   - 已修复：File::read 增加空文件/零长度读取检查，直接返回 0
+   - 已修复：File::read_from_pos 中 seek 返回 0（文件开头）被误判为失败，改为 < 0
+   - 已补回归检查：main/file_test.cc 覆盖空文件 read 和 read_from_pos

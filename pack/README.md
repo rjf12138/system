@@ -16,8 +16,8 @@ cd ../system && ./pack/ncurses/pack.sh
 
 产物：
 
-- `~/.project_manager/repo/system-0.1.1.pm`
-- `~/.project_manager/repo/system-0.1.1.pm.sha256`
+- `~/.project_manager/repo/system-0.1.2.pm`
+- `~/.project_manager/repo/system-0.1.2.pm.sha256`
 
 包内结构：
 
@@ -61,7 +61,8 @@ pm deps install system
 pm build system
 ```
 
-会构建静态库和 7 个测试可执行文件。`directory_test`、`file_test` 可直接运行；
+会构建静态库和 8 个测试可执行文件。`regression_test` 覆盖 File/Directory/Time/
+Mutex/Socket/ThreadPool 的关键回归项；`directory_test`、`file_test` 可直接运行；
 `mutex_test`、`threadpool_test` 是交互式测试，`echo_client_test`/`echo_server_test`
 需要客户端/服务端配合，`dns` 依赖网络环境。
 

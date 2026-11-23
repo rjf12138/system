@@ -1,10 +1,15 @@
 #include "system.h"
 
+#include <new>
+
 namespace os {
 
 Mutex::Mutex(bool is_show_lock_info)
-    : is_show_lock_info_(is_show_lock_info),
-    is_locked_(false)
+    : errno_(0),
+    is_show_lock_info_(is_show_lock_info),
+    is_locked_(false),
+    lock_id_(0),
+    mutex_ptr_(nullptr)
 {
     this->set_stream_func(LOG_LEVEL_TRACE, g_msg_to_stream_trace);
     this->set_stream_func(LOG_LEVEL_DEBUG, g_msg_to_stream_debug);
@@ -12,18 +17,30 @@ Mutex::Mutex(bool is_show_lock_info)
     this->set_stream_func(LOG_LEVEL_WARN, g_msg_to_stream_warn);
     this->set_stream_func(LOG_LEVEL_ERROR, g_msg_to_stream_error);
     this->set_stream_func(LOG_LEVEL_FATAL, g_msg_to_stream_fatal);
-    
-    mutex_ptr_ = new pthread_mutex_t;
+
+    mutex_ptr_ = new (std::nothrow) pthread_mutex_t;
+    if (mutex_ptr_ == nullptr) {
+        errno_ = ENOMEM;
+        LOG_ERROR("new pthread_mutex_t: %s", strerror(errno_));
+        return;
+    }
+
 #ifdef __RJF_LINUX__
     int ret = ::pthread_mutex_init(mutex_ptr_, NULL);
     if (ret != 0) {
+        errno_ = ret;
         LOG_ERROR("pthread_mutex_init(): %s", strerror(ret));
+        delete mutex_ptr_;
+        mutex_ptr_ = nullptr;
     }
 #endif
 }
 
 Mutex::~Mutex(void)
 {
+    if (mutex_ptr_ == nullptr) {
+        return;
+    }
 #ifdef __RJF_LINUX__
     int ret = ::pthread_mutex_destroy(mutex_ptr_);
     if (ret != 0) {
@@ -31,23 +48,30 @@ Mutex::~Mutex(void)
     }
 #endif
     delete mutex_ptr_;
+    mutex_ptr_ = nullptr;
 }
 
 int 
 Mutex::lock(const std::string& func_pos, int pos)
 {
+    if (mutex_ptr_ == nullptr) {
+        errno_ = EINVAL;
+        return -1;
+    }
     if (is_show_lock_info_) {
-        LOG_INFO("file pos: %s:%d, lock status: %s, lock_id: %d", func_pos.c_str() + func_pos.find_last_of('/') + 1, pos, is_locked_ ? "waiting unlock" : "locking", lock_id_);
+        LOG_INFO("file pos: %s:%d, lock status: %s, lock_id: %llu", func_pos.c_str() + func_pos.find_last_of('/') + 1, pos, is_locked_ ? "waiting unlock" : "locking", (unsigned long long)lock_id_);
     }
 
 #ifdef __RJF_LINUX__
     int ret = ::pthread_mutex_lock(mutex_ptr_);
     if (ret != 0) {
+        errno_ = ret;
         LOG_ERROR("pthread_mutex_lock(): %s", strerror(ret));
         return -1;
     }
 #endif
 
+    errno_ = 0;
     if (is_show_lock_info_) {
         is_locked_ = true;
         lock_id_ = os::Time::now();
@@ -59,17 +83,23 @@ Mutex::lock(const std::string& func_pos, int pos)
 int 
 Mutex::trylock(const std::string& func_pos, int pos)
 {
+    if (mutex_ptr_ == nullptr) {
+        errno_ = EINVAL;
+        return -1;
+    }
     if (is_show_lock_info_) {
-        LOG_INFO("file pos: %s:%d, lock status: %s, lock_id: %d", func_pos.c_str() + func_pos.find_last_of('/') + 1, pos, is_locked_ ? "waiting unlock" : "locking", lock_id_);
+        LOG_INFO("file pos: %s:%d, lock status: %s, lock_id: %llu", func_pos.c_str() + func_pos.find_last_of('/') + 1, pos, is_locked_ ? "waiting unlock" : "locking", (unsigned long long)lock_id_);
     }
 
 #ifdef __RJF_LINUX__
     int ret = ::pthread_mutex_trylock(mutex_ptr_);
     if (ret != 0) {
+        errno_ = ret;
         LOG_ERROR("pthread_mutex_trylock(): %s", strerror(ret));
         return -1;
     }
 #endif
+    errno_ = 0;
     if (is_show_lock_info_) {
         is_locked_ = true;
         lock_id_ = os::Time::now();
@@ -81,18 +111,24 @@ Mutex::trylock(const std::string& func_pos, int pos)
 int 
 Mutex::unlock(const std::string& func_pos, int pos)
 {
+    if (mutex_ptr_ == nullptr) {
+        errno_ = EINVAL;
+        return -1;
+    }
     if (is_show_lock_info_) {
-        LOG_INFO("file pos: %s:%d, lock status: %s, lock_id: %d", func_pos.c_str() + func_pos.find_last_of('/') + 1, pos, is_locked_ ? "unlocking" : "not locked", lock_id_);
+        LOG_INFO("file pos: %s:%d, lock status: %s, lock_id: %llu", func_pos.c_str() + func_pos.find_last_of('/') + 1, pos, is_locked_ ? "unlocking" : "not locked", (unsigned long long)lock_id_);
     }
 
 #ifdef __RJF_LINUX__
     int ret = ::pthread_mutex_unlock(mutex_ptr_);
     if (ret != 0) {
+        errno_ = ret;
         LOG_ERROR("pthread_mutex_unlock(): %s", strerror(ret));
         return -1;
     }
 #endif
 
+    errno_ = 0;
     if (is_show_lock_info_) {
         is_locked_ = false;
         lock_id_ = 0;
