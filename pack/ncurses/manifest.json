@@ -1,0 +1,14 @@
+{
+  "name": "ncurses",
+  "version": "6.2",
+  "description": "ncurses 6.2 static libraries and headers (debug/release)",
+  "author": "ruanjian",
+  "lib_type": "static",
+  "link_libs": [
+    "ncurses++",
+    "form",
+    "menu",
+    "panel",
+    "ncurses"
+  ]
+}

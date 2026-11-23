@@ -4,13 +4,15 @@
         "tasks": [
             {
                 "type": "shell",
-                "label": "compile script",
-                "command": "project",
+                "label": "pm build",
+                "command": "pm",
                 "args": [
+                    "build",
+                    "system",
                     "-r"
                 ],
                 "options": {
-                    "cwd": "/home/ruanjian/workspace/project_v/system"
+                    "cwd": "${workspaceFolder}"
                 },
                 "group": {
                     "kind": "build",

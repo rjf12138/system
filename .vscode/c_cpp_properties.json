@@ -3,13 +3,15 @@
         {
             "name": "Linux",
             "includePath": [
-                "${default}",
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/inc",
                 "${workspaceFolder}/extern_inc",
-                "${workspaceFolder}/inc"
+                "${workspaceFolder}/src"
             ],
-            "compilerPath": "/usr/bin/gcc",
-            "cStandard": "c11",
-            "cppStandard": "c++14"
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c17",
+            "cppStandard": "c++11",
+            "intelliSenseMode": "linux-gcc-x64"
         }
     ],
     "version": 4

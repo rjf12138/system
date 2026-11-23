@@ -1,0 +1,24 @@
+{
+  "name": "system",
+  "version": "0.1.1",
+  "description": "C++ OS utility library: file/directory, thread pool, mutex, socket, time, terminal window",
+  "author": "ruanjian",
+  "lib_type": "static",
+  "link_libs": [
+    "system"
+  ],
+  "deps": [
+    {
+      "name": "basic",
+      "version": "0.1.1"
+    },
+    {
+      "name": "data_structure",
+      "version": "0.1.1"
+    },
+    {
+      "name": "ncurses",
+      "version": "6.2"
+    }
+  ]
+}

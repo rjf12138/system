@@ -1,0 +1,6 @@
+build/
+output/
+pack/build/
+
+# directory_test 运行时在当前目录生成的测试数据
+/test/

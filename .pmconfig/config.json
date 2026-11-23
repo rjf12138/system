@@ -1,0 +1,122 @@
+{
+  "name": "system",
+  "version": "0.1.1",
+  "path": "/home/ruanjian/workspace/project/system",
+  "uuid": "f78334bd-68a1-4808-bd91-3900e0c74e08",
+  "build_system": "cmake",
+  "cmake_minimum_version": "3.10",
+  "language": "CXX",
+  "cxx_standard": 11,
+  "source_dirs": [
+    "src"
+  ],
+  "include_dirs": [
+    "inc"
+  ],
+  "extern_inc_dir": "extern_inc",
+  "lib_dir": "lib",
+  "output_dir": "output",
+  "main_file": "directory_test.cc",
+  "build_mode": "debug",
+  "generate_type": "static_lib",
+  "dependencies": [
+    {
+      "name": "basic",
+      "version": "0.1.1",
+      "lib_type": "static"
+    },
+    {
+      "name": "ncurses",
+      "version": "6.2",
+      "lib_type": "static"
+    },
+    {
+      "name": "data_structure",
+      "version": "0.1.1",
+      "lib_type": "header-only"
+    }
+  ],
+  "deps": {
+    "libs": [
+      "ncurses++",
+      "form",
+      "menu",
+      "panel",
+      "ncurses",
+      "basic",
+      "pthread"
+    ],
+    "lib_dirs": [],
+    "inc_dirs": [],
+    "src_dirs": []
+  },
+  "build_options": {
+    "debug": {
+      "defines": [
+        "DEBUG"
+      ],
+      "optimization": "-O0 -Wall"
+    },
+    "release": {
+      "defines": [
+        "NDEBUG"
+      ],
+      "optimization": "-O2 -Wall"
+    }
+  },
+  "targets": [
+    {
+      "name": "system",
+      "type": "static_lib"
+    },
+    {
+      "name": "directory_test",
+      "type": "executable",
+      "source_files": [
+        "main/directory_test.cc"
+      ]
+    },
+    {
+      "name": "dns",
+      "type": "executable",
+      "source_files": [
+        "main/dns.cc"
+      ]
+    },
+    {
+      "name": "echo_client_test",
+      "type": "executable",
+      "source_files": [
+        "main/echo_client_test.cc"
+      ]
+    },
+    {
+      "name": "echo_server_test",
+      "type": "executable",
+      "source_files": [
+        "main/echo_server_test.cc"
+      ]
+    },
+    {
+      "name": "file_test",
+      "type": "executable",
+      "source_files": [
+        "main/file_test.cc"
+      ]
+    },
+    {
+      "name": "mutex_test",
+      "type": "executable",
+      "source_files": [
+        "main/mutex_test.cc"
+      ]
+    },
+    {
+      "name": "threadpool_test",
+      "type": "executable",
+      "source_files": [
+        "main/threadpool_test.cc"
+      ]
+    }
+  ]
+}

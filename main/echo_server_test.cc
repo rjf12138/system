@@ -73,9 +73,8 @@ int main(void)
         pool.add_task(task);
     }
 
-    while (pool.get_state() != WorkThread_EXIT) {
-        Time::sleep(500);
-    }
+    // ThreadPool::stop_handler() 会同步等待所有工作线程退出
+    pool.stop_handler();
 
     return 0;
 }
